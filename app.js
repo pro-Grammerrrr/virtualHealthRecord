@@ -1,30 +1,135 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require('mongoose');
-
+const session = require("express-session");
 const app = express();
-
+app.use(session({ secret: "5DED5486FFDE459BC62C69A879C93", resave: true, saveUninitialized: true }));
 app.set('view engine', 'ejs');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 mongoose.connect('mongodb://127.0.0.1:27017/vhr', { useNewUrlParser: true, useUnifiedTopology: true });
 
+const path = require('path');
+const { log } = require("console");
+const filePath = path.join(__dirname, 'public', 'files', 'loginActivities', 'signUp.html');
+
+// Server Side Scripting code
+app.get('/' , (req , res)=>{
+    res.sendFile(__dirname + '/home.html')
+})
+app.get('/signUp.html', (req, res) => {
+    res.sendFile(__dirname + '/signUp.html'); // Use the filePath variable
+});
+app.get('/registration', (req, res) => {
+    res.sendFile(__dirname + '/registration.html'); // Use the filePath variable
+});
+//Registration Model
+const userSchema = new mongoose.Schema({
+    username: String,
+    email: String,
+    password: String,
+});
+const User = mongoose.model("User", userSchema);
+// Registration route
+// Registration route
+app.post('/signUp', (req, res) => {
+    // Create a new user object with the user's registration data
+    const newUser = new User(req.body);
+
+    // Save the new user to the database
+    newUser.save()
+        .then(savedUser => {
+            req.session.userId = savedUser._id;
+            console.log('User ID:', savedUser._id); // Corrected this line
+            // Redirect to the patient registration form and pass userId as a query parameter
+            res.redirect('/registration?userId=' + savedUser._id);
+        })
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({ error: "Error creating account" });
+        });
+});
 const patientSchema = new mongoose.Schema({
-    name: String,
+    Fname: String,
+    Lname: String,
     dateOfBirth: Date,
     ph: Number,
     age: Number,
     address: String,
     gender: String,
     bloodGroup: String,
-    appointments :[{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }],
-    medicalHistory :[{ type: mongoose.Schema.Types.ObjectId, ref: 'MedicalHistory' }],
-    medication :[{ type: mongoose.Schema.Types.ObjectId, ref: 'Medication' }],
-
+    country: String,
+    state: String,
+    height: Number,
+    weight: Number,
+    bp: Number,
+    heartRate: Number,
+    prevMedical: [
+        {
+            condition: String,
+            treatment: String
+        }
+    ],
+    appointments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }],
+    medicalHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MedicalHistory' }],
+    medication: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Medication' }],
 });
 
 const Patient = mongoose.model("Patient", patientSchema);
+// Registration Part where i save the users data and make an new Patient 
+app.post('/registration', async (req, res) => {
+    console.log('User ID:', req.session.userId);
+    try {
+        // Check if the user is authenticated
+        if (!req.session.userId) {
+            return res.status(401).json({ error: "User not authenticated" });
+        }
+
+        // Find the user in the database by their ID
+        const user = await User.findById(req.session.userId);
+
+        if (!user) {
+            return res.status(401).json({ error: "User not found" });
+        }
+
+        // Create a new patient instance and include user information
+        const newPatient = new Patient({
+            // User data
+            userId: req.session.userId,
+            // Other patient data based on your form
+            Fname: req.body.firstName,
+            Lname: req.body.lastName,
+            dateOfBirth: req.body.dob,
+            ph: req.body.contactNumber,
+            age: req.body.age,
+            address: req.body.address,
+            gender: req.body.gender,
+            bloodGroup: req.body.bloodGroup,
+            country: req.body.country,
+            state: req.body.state,
+            height: req.body.height,
+            weight: req.body.weight,
+            bp: req.body.bloodPressure,
+            heartRate: req.body.heartRate,
+            // Assuming prevMedical is an array of objects (condition and treatment)
+            prevMedical: [
+                {
+                    condition: req.body.medicalCondition,
+                    treatment: req.body.treatment
+                }
+            ],
+        });
+
+        // Save the new patient record
+        const savedDocument = await newPatient.save();
+        res.status(201).json(savedDocument);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error during patient registration" });
+    }
+});
+
 
 // Route for listing all patients
 app.route("/patients")
@@ -368,7 +473,7 @@ app.route("/labResults")
                 res.status(500).json({error : "An error occured"});
             });
         })
-        .post((req , res =>{
+        .post((req, res )=>{
             const newLabResult = new LabResults(req.body);
             newLabResult
                 .save()
@@ -379,7 +484,7 @@ app.route("/labResults")
                     console.log(err);
                     res.status(500).json({error : "error saving lab result"})
                 })
-        }))
+        })
         .delete((req, res) => {
             LabResults.deleteMany()
                 .then(result => {
