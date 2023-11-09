@@ -570,19 +570,18 @@ body {
      
         <div class="signin-signup">
    
-          <form action="#" class="sign-in-form">
+          <form action="/login" class="sign-in-form" method="post">
             <h2 class="title">Sign in</h2>
             <div class="input-field">
-              <i class="fas fa-user"></i>
-              <input type="text" placeholder="Username" />
+                <i class="fas fa-user"></i>
+                <input name="username" type="text" placeholder="Username" />
             </div>
-     
+        
             <div class="input-field">
-              <i class="fas fa-lock"></i>
-              <input type="password" placeholder="Password" />
+                <i class="fas fa-lock"></i>
+                <input name="password" type="password" placeholder="Password" />
             </div>
-            <input type="submit" value="Login" class="btn solid" />
-            <a href="#" style="color: rgb(205, 197, 197);">Forget Password ?</a>
+            <input type="submit" method value="Login" class="btn solid" /><a href="#" style="color: rgb(205, 197, 197);">Forget Password ?</a>
             <p class="social-text" style="color: aliceblue ;">Join us in social media platforms</p>
             <div class="social-media">
               <a href="# " class="social-icon">
@@ -638,7 +637,7 @@ body {
               <a href=" " class="insta">
                 <i class="fa-brands fa-instagram" ></i>
               </a>
-              <a href="# " class="linkedin">
+              <a href="#" class="linkedin">
                 <i class="fa-brands fa-linkedin"></i>
               </a>
             </div>

@@ -3,17 +3,33 @@ const bodyParser = require("body-parser");
 const mongoose = require('mongoose');
 const session = require("express-session");
 const app = express();
-app.use(session({ secret: "5DED5486FFDE459BC62C69A879C93", resave: true, saveUninitialized: true }));
-app.set('view engine', 'ejs');
-
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static("public"));
-mongoose.connect('mongodb://127.0.0.1:27017/vhr', { useNewUrlParser: true, useUnifiedTopology: true });
-
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
 const path = require('path');
 const { log } = require("console");
 const filePath = path.join(__dirname, 'public', 'files', 'loginActivities', 'signUp.html');
-
+const bcrypt = require('bcrypt');
+const flash = require("connect-flash");
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static("public"));
+mongoose.connect('mongodb://127.0.0.1:27017/vhr', { useNewUrlParser: true, useUnifiedTopology: true });
+app.use(session({ secret: "5DED5486FFDE459BC62C69A879C93", resave: true, saveUninitialized: true }));
+app.use(flash()); // Initialize connect-flash
+// Passport configuration
+app.use(session({ secret: "5DED5486FFDE459BC62C69A879C93", resave: true, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session());
+passport.serializeUser(function(user, done) {
+    done(null, user.id); // Serialize the user by their ID
+});
+passport.deserializeUser(async function(id, done) {
+    try {
+        const user = await User.findById(id).exec();
+        done(null, user);
+    } catch (err) {
+        done(err, null);
+    }
+});
 // Server Side Scripting code
 app.get('/' , (req , res)=>{
     res.sendFile(__dirname + '/home.html')
@@ -30,26 +46,62 @@ const userSchema = new mongoose.Schema({
     email: String,
     password: String,
 });
+
+// Define the validPassword method on the User model
+userSchema.methods.validPassword = function (password) {
+    return bcrypt.compareSync(password, this.password);
+}
 const User = mongoose.model("User", userSchema);
-// Registration route
+passport.use(new LocalStrategy(
+    async (username, password, done) => {
+        try {
+            const user = await User.findOne({ username: username });
+
+            if (!user) {
+                return done(null, false, { message: "User not found" });
+            }
+
+            if (!user.validPassword(password)) {
+                return done(null, false, { message: "Incorrect password" });
+            }
+
+            return done(null, user);
+        } catch (error) {
+            return done(error);
+        }
+    }
+));
 // Registration route
 app.post('/signUp', (req, res) => {
     // Create a new user object with the user's registration data
     const newUser = new User(req.body);
 
-    // Save the new user to the database
-    newUser.save()
-        .then(savedUser => {
-            req.session.userId = savedUser._id;
-            console.log('User ID:', savedUser._id); // Corrected this line
-            // Redirect to the patient registration form and pass userId as a query parameter
-            res.redirect('/registration?userId=' + savedUser._id);
-        })
-        .catch(err => {
+    // Hash the user's password before saving
+    const password = req.body.password;
+    const saltRounds = 10; // Adjust the number of salt rounds as needed
+
+    bcrypt.hash(password, saltRounds, (err, hash) => {
+        if (err) {
             console.error(err);
             res.status(500).json({ error: "Error creating account" });
-        });
+        } else {
+            newUser.password = hash; // Set the hashed password
+            // Save the new user to the database
+            newUser.save()
+                .then(savedUser => {
+                    req.session.userId = savedUser._id;
+                    console.log('User ID:', savedUser._id);
+                    // Redirect to the patient registration form and pass userId as a query parameter
+                    res.redirect('/registration?userId=' + savedUser._id);
+                })
+                .catch(err => {
+                    console.error(err);
+                    res.status(500).json({ error: "Error creating account" });
+                });
+        }
+    });
 });
+
 const patientSchema = new mongoose.Schema({
     Fname: String,
     Lname: String,
@@ -123,11 +175,42 @@ app.post('/registration', async (req, res) => {
 
         // Save the new patient record
         const savedDocument = await newPatient.save();
-        res.status(201).json(savedDocument);
+        res.redirect('/signUp.html');
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Error during patient registration" });
     }
+});
+// Loggin UP the user 
+
+app.post('/login', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) {
+            console.error(err);
+            return res.redirect('/signUp.html'); // Redirect to the login page
+        }
+        if (!user) {
+            console.log('Login failed:', info && info.message); // Check if info exists
+            return res.redirect('/signUp.html'); // Redirect to the login page
+        }
+
+        // Use bcrypt to compare the provided password with the stored hash
+        bcrypt.compare(req.body.password, user.password, (bcryptErr, result) => {
+            if (bcryptErr || !result) {
+                console.log('Login failed: Incorrect password');
+                return res.redirect('/signUp.html'); // Redirect to the login page
+            }
+
+            req.login(user, (loginErr) => {
+                if (loginErr) {
+                    console.error(loginErr);
+                    return res.redirect('/signUp.html'); // Redirect to the login page
+                }
+                console.log('Login successful');
+                return res.redirect('/dashboard');
+            });
+        });
+    })(req, res, next);
 });
 
 
@@ -345,10 +428,7 @@ const medicalHistorySchema = new mongoose.Schema({
     a_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }]
 });
 const MedicalHistory = mongoose.model("MedicalHistory" , medicalHistorySchema);
-
-
 //Route for All listing of medical HIstory
-
 app.route("/medicalHstory")
     .get( (req , res)=>{
         MedicalHistory.find({})
@@ -386,13 +466,7 @@ app.route("/medicalHstory")
                 res.status(500).json({ error: "Error deleting MedicalHistory" });
             });
     });
-
-
-
-
-
 ///-------->Medications<--------------
-
 
 const medicationSchema = new mongoose.Schema({
     medicine_id : Number, 
