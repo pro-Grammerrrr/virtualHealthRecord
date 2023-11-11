@@ -10,6 +10,8 @@ const { log } = require("console");
 const filePath = path.join(__dirname, 'public', 'files', 'loginActivities', 'signUp.html');
 const bcrypt = require('bcrypt');
 const flash = require("connect-flash");
+const ejs = require('ejs');
+app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 mongoose.connect('mongodb://127.0.0.1:27017/vhr', { useNewUrlParser: true, useUnifiedTopology: true });
@@ -39,6 +41,12 @@ app.get('/signUp.html', (req, res) => {
 });
 app.get('/registration', (req, res) => {
     res.sendFile(__dirname + '/registration.html'); // Use the filePath variable
+});
+app.get('/docSignUp.html', (req, res) => {
+    res.sendFile(__dirname + '/docSignUp.html'); // Use the filePath variable
+});
+app.get('/doctor_registration', (req, res) => {
+    res.sendFile(__dirname + '/doctor_registration.html'); // Use the filePath variable
 });
 //Registration Model
 const userSchema = new mongoose.Schema({
@@ -73,12 +81,12 @@ passport.use(new LocalStrategy(
 ));
 // Registration route
 app.post('/signUp', (req, res) => {
-    // Create a new user object with the user's registration data
+    // Check the role submitted in the registration form
+    const role = req.body.role;
     const newUser = new User(req.body);
-
-    // Hash the user's password before saving
+    // Hash 
     const password = req.body.password;
-    const saltRounds = 10; // Adjust the number of salt rounds as needed
+    const saltRounds = 10; 
 
     bcrypt.hash(password, saltRounds, (err, hash) => {
         if (err) {
@@ -86,13 +94,18 @@ app.post('/signUp', (req, res) => {
             res.status(500).json({ error: "Error creating account" });
         } else {
             newUser.password = hash; // Set the hashed password
-            // Save the new user to the database
             newUser.save()
                 .then(savedUser => {
                     req.session.userId = savedUser._id;
                     console.log('User ID:', savedUser._id);
-                    // Redirect to the patient registration form and pass userId as a query parameter
-                    res.redirect('/registration?userId=' + savedUser._id);
+
+                    if (role === "doctor") {
+                        // Redirect doctors to the doctor registration form
+                        res.redirect('/doctor_registration?userId=' + savedUser._id);
+                    } else {
+                        // Redirect patients to the patient registration form
+                        res.redirect('/registration?userId=' + savedUser._id);
+                    }
                 })
                 .catch(err => {
                     console.error(err);
@@ -101,7 +114,6 @@ app.post('/signUp', (req, res) => {
         }
     });
 });
-
 const patientSchema = new mongoose.Schema({
     Fname: String,
     Lname: String,
@@ -127,7 +139,6 @@ const patientSchema = new mongoose.Schema({
     medicalHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MedicalHistory' }],
     medication: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Medication' }],
 });
-
 const Patient = mongoose.model("Patient", patientSchema);
 // Registration Part where i save the users data and make an new Patient 
 app.post('/registration', async (req, res) => {
@@ -260,7 +271,8 @@ app.route("/patients/:userId")
         Patient.findById(userSid.slice(1))
         .then((result)=>{
             if (result) {
-                res.status(200).json(result);
+                res.render('patients', result);
+
             } else {
                 res.status(404).json({message : "Pateint found"});
             }
@@ -311,16 +323,68 @@ app.route("/patients/:userId")
     });
 // Doctor Schema
 const doctorSchema = new mongoose.Schema({
-    d_id: Number,
-    name: String,
-    ph: Number,
-    licenseNumber: Number,
-    clinicAddress: String,
-    gender: String,
-    specality: String,
-    patients: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Patient' }]
+    d_id: Number, // Doctor's unique identifier (you can adjust the type as needed)
+    fName: String, // First name
+    lName: String,  // Last nam
+    gender: String, // Gender
+    dateOfBirth: Date, // Date of Birth
+    email: String, // Email for communication
+    ph: Number, // Phone number (you can adjust the type as needed)
+    address: String, // Work address or office location
+    licenseNumber: Number, // Medical license number (you can adjust the type as needed)
+    specality: String, // Medical specialty
+    qualifications: String, // Medical qualifications and certifications
+    experience: String, // Work experience including past positions and institutions
+    officeHours: String, // Regular office hours or availability
+    appointmentSlots: String, // List of available appointment slots for patients to schedule
+
+    patients: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Patient' }],
+    appointments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }],
+
+    // Add more fields as needed
 });
 const Doctor = mongoose.model("Doctor", doctorSchema);
+app.post('/doctor_registration', async (req, res) => {
+    console.log('User ID:', req.session.userId);
+    try {
+        // Check if the user is authenticated
+        if (!req.session.userId) {
+            return res.status(401).json({ error: "User not authenticated" });
+        }
+        // Find the user in the database by their ID
+        const user = await User.findById(req.session.userId);
+        if (!user) {
+            return res.status(401).json({ error: "User not found" });
+        }
+        // Create a new patient instance and include user information
+        const newDoctor = new Doctor({
+            // Doctor's data
+            d_id: req.session.userId, // Assuming this is the doctor's unique identifier
+            fName: req.body.firstName, // First name
+            lName: req.body.lastName, // Last name
+            gender: req.body.gender, // Gender
+            dateOfBirth: req.body.dateOfBirth, // Date of Birth
+            email: req.body.email, // Email for communication
+            ph: req.body.phoneNumber, // Phone number
+            address: req.body.address, // Work address or office location
+            licenseNumber: req.body.licenseNumber, // Medical license number
+            specality: req.body.specialty, // Medical specialty
+            qualifications: req.body.qualifications, // Medical qualifications and certifications
+            experience: req.body.experience, // Work experience including past positions and institutions
+            officeHours: req.body.officeHours, // Regular office hours or availability
+            appointmentSlots: req.body.appointmentSlots, // List of available appointment slots for patients to schedule
+        
+            // Additional fields can be added here
+        });
+
+        // Save the new patient record
+        const savedDocument = await newDoctor.save();
+        res.redirect('/docSignUp.html');
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error during Docotrs registration" });
+    }
+});
 // Route for listing all doctors
 app.route("/doctors")
     .get(function (req, res) {

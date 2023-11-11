@@ -1,0 +1,46 @@
+<div style="padding: 20px ;">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+      <h1 class="h2">Dashboard</h1>
+      <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+          <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1">
+          <svg class="bi"><use xlink:href="#calendar3"/></svg>
+          This week
+        </button>
+      </div>
+    </div>
+    <div class="container">
+      <div class="nameSection">
+          <h4>Name :<%= Fname %> <%= Lname %> <br>
+          Age :<%= age %><br>
+          Address : <%= address%> <br>
+          Blood Group : <%=bloodGroup%>
+          </h4>
+      </div>
+      <div class="vitals">
+        <h6>Blood Pressure</h6>
+        <p><%=bp%> bp</p>
+      </div>
+      <div class="extra-div1">
+        <h6>Height</h6>
+          <p><%= height %> cm</p>
+      </div>
+      <div class="extra-div2">
+        <h6>Weight</h6>
+        <p><%= weight %> Kg</p>
+      </div>
+  </div>
+  <div style="height: 200px; width: 500px; background-color: #FF6B6B;float: right; padding: 10px;">
+    <h4>Appointments</h4>    
+    <ul>
+    
+  </ul>
+  </div>
+  <div style="height: 200px; width: 500px; background-color: #ffffff;float: left; padding: 10px;">
+    <h4>Medications</h4>    
+    <ul>   
+  </div>
+</div>

@@ -1,0 +1,99 @@
+/* Reset default margin and padding for all elements */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Set a background color for the whole page */
+body {
+  background-color: #f5ebeb;
+  font-family: Arial, sans-serif;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  background-color: #292F36;
+  color: #ffffff;
+  position: sticky;
+  top: 48px;
+}
+
+.nav-item {
+  color: #ffffff !important;
+}
+
+.sidebar .nav-link {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.sidebar .nav-link.active {
+  color: #4ECDC4;
+}
+
+/* Navbar Styles */
+.navbar {
+  background-color: #FFFFFF;
+  color: #292F36;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  font-weight: bold;
+  padding: 0.75rem 1rem;
+  background-color: #FFFFFF;
+}
+
+/* Custom Styles */
+.container-fluid {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+}
+
+.nameSection {
+  background-color: #4ECDC4;
+  color: #292F36;
+  width: 400px;
+  height: 200px;
+  padding: 20px;
+  font-family: 'Montserrat', sans-serif;
+  margin: 10px;
+  border-radius: 5px;
+}
+
+.vitals, .extra-div1, .extra-div2 {
+  height: 100px;
+  width: 200px;
+  background-color: #292F36;
+  margin: 10px;
+  color: #FFFFFF;
+  float: left;
+  padding: 15px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+/* Improved button styles */
+.btn {
+  background-color: #4ECDC4;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Adjust button style as needed */
+.btn-outline {
+  background-color: transparent;
+  color: #4ECDC4;
+  border: 1px solid #4ECDC4;
+}
+
+/* Make buttons more visually appealing on hover */
+.btn:hover {
+  opacity: 0.8;
+}
