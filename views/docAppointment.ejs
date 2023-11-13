@@ -1,0 +1,28 @@
+<div class="custom-table">
+    <table>
+        <thead>
+            <tr>
+                <th>Patient Name</th>
+                <th>Appointment Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% doctorAppointments.forEach(appointment => { %>
+                <tr>
+                    <td><%= appointment.p_id.Fname %> <%= appointment.p_id.Lname %></td>
+                    <td><%= appointment.date %></td>
+                    <td>
+                        <span class="badge <%= appointment.appointmentStatus %>">
+                            <%= appointment.appointmentStatus %>
+                        </span>
+                    </td>
+                    <td>
+                        <a href="#" class="view-button" data-appointment-id="<%= appointment._id %>">View</a>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</div>

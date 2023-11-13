@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="appointment-details">
+        <h1>Appointment Details</h1>
+        <p><strong>Patient:</strong> <%= appointment.p_id.Fname %> <%= appointment.p_id.Lname %></p>
+        <p><strong>Doctor:</strong> Dr. <%= appointment.d_id.fName %> <%= appointment.d_id.lName %></p>
+        <p><strong>Date:</strong> <%= appointment.date %></p>
+        <p><strong>Time:</strong> <%= appointment.time %></p>
+        <p><strong>Notes:</strong> <%= appointment.notes %></p>
+        <p><strong>Diagnosis:</strong> <%= appointment.diagnose_condition %></p>
+        <p><strong>Status:</strong> <%= appointment.apponitmentStatus %></p
+    
+            <!-- Add "Accept" and "Reject" buttons here -->
+            <form action="/appointments/accept/<%= appointment._id %>" method="post">
+                <button type="submit" name="accept">Accept</button>
+            </form>
+            <form action="/appointments/reject/<%= appointment._id %>" method="post">
+                <button type="submit" name="reject">Reject</button>
+            </form>
+    </div>
+    <script>
+        $(document).ready(function () {
+            $(".accept-button").on("click", function () {
+                // Handle the "Accept" action here
+                // You can use AJAX to update the appointment status on the server-side
+                // Then, you may want to redirect the user back to the appointments list.
+            });
+    
+            $(".reject-button").on("click", function () {
+                // Handle the "Reject" action here
+                // You can use AJAX to update the appointment status on the server-side
+                // Then, you may want to redirect the user back to the appointments list.
+            });
+        });
+    </script>
+        
+</body>
+</html>

@@ -1,0 +1,41 @@
+<div class="container mt-4">
+    <h1>Welcome, Dr. <%= doctor.fName %> <%= doctor.lName %></h1>
+    <p class="lead">Here's your dashboard with important information and actions:</p>
+
+    <!-- Cards for displaying patient information -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Total Patients</h5>
+                    <p class="card-text text-primary">150</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class ="card-body">
+                    <h5 class="card-title">Upcoming Appointments</h5>
+                    <p class="card-text text-warning">25</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Today's Appointments</h5>
+                    <p class="card-text text-success">5</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- List of upcoming appointments -->
+    <h2 class="mt-4 text-primary">Upcoming Appointments</h2>
+    <ul class="list-group">
+        <li class="list-group-item">Patient: Alice Johnson - Date: 2023-12-01</li>
+        <li class="list-group-item">Patient: Bob Smith - Date: 2023-12-05</li>
+        <li class="list-group-item">Patient: Carol Davis - Date: 2023-12-10</li>
+        <!-- Add more appointment items here -->
+    </ul>
+</div>

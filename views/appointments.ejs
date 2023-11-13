@@ -1,24 +1,21 @@
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-12">
-            <div class="card-deck">
-                <!-- Appointment cards will be dynamically generated here -->
-                <!-- Example card for reference -->
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Patient: John Doe</h5>
-                        <h6 class="card-subtitle mb-2 text-muted">Doctor: Dr. Smith</h6>
-                        <p class="card-text">Date: 2023-10-30</p>
-                        <p class="card-text">Diagnosis: Some diagnosis details go here.</p>
-                        <p class="card-text">Status: Scheduled</p>
-                    </div>
-                </div>
-                <!-- Repeat the card structure for each appointment -->
-            </div>
+<% userAppointments.forEach(appointment => { %>
+    <div class="card">
+        <div class="card-body">
+            <!-- Loop through p_id array to access patient names -->
+            <% appointment.p_id.forEach(patient => { %>
+            <h5 class="card-title">Patient: <%= patient.Fname %> <%= patient.Lname %></h5>
+            <% }); %>
+            <!-- Loop through d_id array to access doctor names -->
+            <% appointment.d_id.forEach(doctor => { %>
+            <h6 class="card-subtitle mb-2 text-muted">Doctor: Dr.<%= doctor.fName %> <%= doctor.lName %></h6>
+            <% }); %>
+            <p class="card-text">Date: <%= appointment.date %></p>
+            <p class="card-text">Diagnosis: <%= appointment.diagnose_condition %></p>
+            <p class="card-text">Status: <%= appointment.apponitmentStatus %></p>
         </div>
     </div>
-</div>
-
+    <% }); %>
+    
 <!-- Button to trigger the modal -->
 <button class="btn btn-primary btn-fixed-bottom-right" data-toggle="modal" data-target="#appointmentModal">Add Appointment</button>
 
@@ -30,10 +27,10 @@
             <!-- Add your appointment booking form here -->
             <div id="tab2" class="tabcontent appointment-form">
                 <h5 class="mb-1">Make an Appointment</h5>
-                <form action="/submit-appointment" method="post">
+                <form action="/appointment" method="post">
                     <div class="form-group">
-                        <label for="name">Doctor's Name:</label>
-                        <input type="text" id="name" name="name" class="form-control" required>
+                        <label for="name">Doctor's Id:</label>
+                        <input type="text" id="name" name="d_id" class="form-control" required>
                     </div>
             
                     <div class="form-group">

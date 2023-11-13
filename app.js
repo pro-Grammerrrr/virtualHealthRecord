@@ -115,6 +115,7 @@ app.post('/signUp', (req, res) => {
     });
 });
 const patientSchema = new mongoose.Schema({
+    _id: mongoose.Schema.Types.ObjectId,
     Fname: String,
     Lname: String,
     dateOfBirth: Date,
@@ -266,21 +267,36 @@ app.route("/patients")
 
 // Route for specific patient data
 app.route("/patients/:userId")
-    .get(function (req , res){
-        const userSid = req.params.userId ;
-        Patient.findById(userSid.slice(1))
-        .then((result)=>{
-            if (result) {
-                res.render('patients', result);
+    .get(function (req, res) {
+        Patient.findById(req.params.userId.slice(1))
+            .then((result) => {
+                if (result) {
+                    console.log(result);
 
-            } else {
-                res.status(404).json({message : "Pateint found"});
-            }
-        })
-        .catch((err) => {
-            console.error(err);
-            res.status(500).json({ error: "Internal server error" });
-        });
+                    // Fetch appointment data
+                    Appointment.find({ p_id: result._id })
+                    .populate('p_id', 'Fname Lname') // Populate patient's name
+                    .populate('d_id', 'fName lName') // Populate doctor's name
+                    .exec()
+                        .then(appointments => {
+                            console.log("Appointments for patient:", appointments); // Log the appointments
+                            // Render the patient dashboard with appointment data
+                            res.render('patients',
+                             { patient: result,
+                            userAppointments: appointments });
+                        })
+                        .catch(err => {
+                            // console.error(err);
+                            res.status(500).json({ error: "An error occurred while fetching appointments" });
+                        });
+                } else {
+                    res.status(404).json({ message: "Patient Not found" });
+                }
+            })
+            .catch((err) => {
+                // console.error(err);
+                res.status(500).json({ error: "Internal server error" });
+            });
     })
     .put(function (req, res) {
         const updatedData = req.body;
@@ -323,7 +339,6 @@ app.route("/patients/:userId")
     });
 // Doctor Schema
 const doctorSchema = new mongoose.Schema({
-    d_id: Number, // Doctor's unique identifier (you can adjust the type as needed)
     fName: String, // First name
     lName: String,  // Last nam
     gender: String, // Gender
@@ -331,7 +346,7 @@ const doctorSchema = new mongoose.Schema({
     email: String, // Email for communication
     ph: Number, // Phone number (you can adjust the type as needed)
     address: String, // Work address or office location
-    licenseNumber: Number, // Medical license number (you can adjust the type as needed)
+    licenseNumber: String, // Medical license number (you can adjust the type as needed)
     specality: String, // Medical specialty
     qualifications: String, // Medical qualifications and certifications
     experience: String, // Work experience including past positions and institutions
@@ -359,7 +374,7 @@ app.post('/doctor_registration', async (req, res) => {
         // Create a new patient instance and include user information
         const newDoctor = new Doctor({
             // Doctor's data
-            d_id: req.session.userId, // Assuming this is the doctor's unique identifier
+            _id: req.session.userId, // Assuming this is the doctor's unique identifier
             fName: req.body.firstName, // First name
             lName: req.body.lastName, // Last name
             gender: req.body.gender, // Gender
@@ -422,15 +437,79 @@ app.route("/doctors")
                 res.status(500).json({ error: "Error deleting doctors" });
             });
     });
+
+//For a Particular Doctor Login 
+app.post('/docLogin', (req, res, next) => {
+    passport.authenticate('local', (err, user, info) => {
+        if (err) {
+            console.error(err);
+            return res.redirect('/docSignUp.html'); // Redirect to the login page
+        }
+        if (!user) {
+            console.log('Login failed:', info && info.message); // Check if info exists
+            return res.redirect('/docSignUp.html'); // Redirect to the login page
+        }
+
+        // Add a condition to check if the user is a doctor
+        bcrypt.compare(req.body.password, user.password, (bcryptErr, result) => {
+            if (bcryptErr || !result) {
+                console.log('Login failed: Incorrect password');
+                return res.redirect('/docSignUp.html'); // Redirect to the login page
+            }
+
+            req.login(user, (loginErr) => {
+                if (loginErr) {
+                    console.error(loginErr);
+                    return res.redirect('/docSignUp.html'); // Redirect to the login page
+                }
+                console.log('Login successful');
+                console.log(user);
+                return res.redirect('/doctors/:' + user._id);
+            });
+        });
+    })(req, res, next);
+});
+
+app.route("/doctors/:userId")
+    .get(function (req, res) {
+        const uid = req.params.userId;
+
+        Doctor.findById(uid.slice(1))
+            .then((result) => {
+                if (result) {
+                    // Fetch the doctor's appointments here
+                    Appointment.find({ d_id: result._id })
+                        .populate('p_id', 'Fname Lname')
+                        .exec()
+                        .then(appointments => {
+                            // Render the doctor's dashboard with the appointments data
+                            res.render('doctors', { doctor: result, doctorAppointments: appointments });
+                        })
+                        .catch(err => {
+                            // Handle the error
+                            res.status(500).json({ error: "An error occurred while fetching appointments" });
+                        });
+                } else {
+                    res.status(404).json({ message: "Doctor Not found" });
+                }
+            })
+            .catch((err) => {
+                console.error(err);
+                res.status(500).json({ error: "Internal server error" });
+            });
+    });
+
+
 ////------------->Appointments Schema <------------
 const apponitmentSchema = new mongoose.Schema({
     p_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Patient' }],
     d_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Doctor' }],
     // venue : String,
     date : Date,
+    time : String,
+    notes : String,
     diagnose_condition : String,
     apponitmentStatus : String,
-    a_id : String
 });
 const Appointment = mongoose.model("Appointment", apponitmentSchema);
 app.route("/appointment")
@@ -447,18 +526,38 @@ app.route("/appointment")
                 res.status(500).json({ error: "An error occurred" });
             });
     })
-    .post( (req , res)=>{
-        const newDoctor = new Appointment(req.body);
-        newDoctor.save()
-        .then(savedDoctor=>{
-            res.status(200).json(savedDoctor);
-        })
-        .catch(err =>{
-            console.log(err);
-            res.status(500).json({error : "An error occured"});
-        })
+    .post(function (req, res) {
+        // Create a new appointment
+        const newAppointment = new Appointment(req.body);
+        // Assign the current user's ID (patient ID) to the p_id field
+        newAppointment.p_id = req.user.id;
+        newAppointment.apponitmentStatus = "Pending";
+        // Save the appointment
+        newAppointment.save()
+            .then(savedAppointment => {
+                // Update the patient's appointment reference
+                Patient.findByIdAndUpdate(req.user.id, { $push: { appointments: savedAppointment._id } })
+                    .then(() => {
+                        // Update the doctor's appointment reference
+                        Doctor.findByIdAndUpdate(req.body.d_id, { $push: { appointments: savedAppointment._id } })
+                            .then(() => {
+                                res.status(200).json(savedAppointment);
+                            })
+                            .catch(err => {
+                                console.log(err);
+                                res.status(500).json({ error: "An error occurred when updating the doctor" });
+                            });
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        res.status(500).json({ error: "An error occurred when updating the patient" });
+                    });
+            })
+            .catch(err => {
+                console.log(err);
+                res.status(500).json({ error: "An error occurred" });
+            });
     });
-
 //Getting an specific Apppointemnt
 app.route("/appointments/:appointmentId")
     .get(function (req, res) {
@@ -484,6 +583,23 @@ app.route("/appointments/:appointmentId")
             .catch(err => {
                 console.error(err);
                 res.status(500).json({ error: "An error occurred" });
+            });
+    });
+
+    app.get('/getAppointments', (req, res) => {
+        // Fetch the user's appointment data, similar to the previous example
+        // Replace this with your actual Mongoose query to fetch appointments associated with the user ID
+        console.log('getAppointments route called')
+        // For example:
+        Appointment.find({ p_id: req.user.id })
+            .populate('d_id')
+            .exec()
+            .then(appointments => {
+                res.json({ userAppointments: appointments });
+            })
+            .catch(err => {
+                console.error(err);
+                res.status(500).json({ error: "An error occurred while fetching appointments" });
             });
     });
 //------------->Medical History <-------------
@@ -631,6 +747,63 @@ app.route("/labResults")
                     res.status(500).json({ error: "Error deleting Medication" });
                 });
         });
+        app.get('/doctors/appointments/:appointmentId', async (req, res) => {
+            try {
+                // Fetch the appointment details using the appointmentId
+                const appointmentId = req.params.appointmentId;
+        
+                // Fetch the appointment and other necessary data using Mongoose
+                const appointment = await Appointment
+                    .findById(appointmentId)
+                    .populate('p_id', 'Fname Lname')
+                    .exec();
+        
+                if (!appointment) {
+                    return res.status(404).json({ message: 'Appointment Not found' });
+                }
+        
+                // Render the appointment details page with the appointment data
+                res.render('appointment-details', {
+                    appointment: appointment,
+                });
+            } catch (err) {
+                console.error(err);
+                res.status(500).json({ error: 'An error occurred while fetching appointment details' });
+            }
+        });
+
+// Handle appointment acceptance
+app.post('/appointments/accept/:id', async (req, res) => {
+    const appointmentId = req.params.id;
+
+    try {
+        // Update the appointment's status to "Accepted" in your database
+        // Replace the following code with your actual database update logic
+        await Appointment.findByIdAndUpdate(appointmentId, { apponitmentStatus: 'Accepted' });
+
+        // Redirect to the appointment details page or any other appropriate page
+        res.redirect('/appointments/' + appointmentId);
+    } catch (err) {
+        res.status(500).json({ error: "An error occurred while accepting the appointment" });
+    }
+});
+
+// Handle appointment rejection
+app.post('/appointments/reject/:id', async (req, res) => {
+    const appointmentId = req.params.id;
+
+    try {
+        // Update the appointment's status to "Rejected" in your database
+        // Replace the following code with your actual database update logic
+        await Appointment.findByIdAndUpdate(appointmentId, { apponitmentStatus: 'Rejected' });
+
+        // Redirect to the appointment details page or any other appropriate page
+        res.redirect('/appointments/' + appointmentId);
+    } catch (err) {
+        res.status(500).json({ error: "An error occurred while rejecting the appointment" });
+    }
+});
+
 
 app.listen(3000, function () {
     console.log("Server started on port 3000");

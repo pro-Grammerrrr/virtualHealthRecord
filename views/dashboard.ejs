@@ -1,46 +1,54 @@
-<div style="padding: 20px ;">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+<div style="padding: 20px;">
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
       <h1 class="h2">Dashboard</h1>
       <div class="btn-toolbar mb-2 mb-md-0">
-        <div class="btn-group me-2">
-          <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-          <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
-        </div>
-        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1">
-          <svg class="bi"><use xlink:href="#calendar3"/></svg>
-          This week
-        </button>
+          <div class="btn-group me-2">
+              <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+              <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1">
+              <svg class="bi"><use xlink:href="#calendar3" /></svg>
+              This week
+          </button>
       </div>
-    </div>
-    <div class="container">
+  </div>
+  <div class="container">
       <div class="nameSection">
-          <h4>Name :<%= Fname %> <%= Lname %> <br>
-          Age :<%= age %><br>
-          Address : <%= address%> <br>
-          Blood Group : <%=bloodGroup%>
+          <h4>Name: <%= patient.Fname %> <%= patient.Lname %> <br>
+          Age: <%= patient.age %><br>
+          Address: <%= patient.address %> <br>
+          Blood Group: <%= patient.bloodGroup %>
           </h4>
       </div>
       <div class="vitals">
-        <h6>Blood Pressure</h6>
-        <p><%=bp%> bp</p>
+          <h6>Blood Pressure</h6>
+          <p><%= patient.bp %> bp</p>
       </div>
       <div class="extra-div1">
-        <h6>Height</h6>
-          <p><%= height %> cm</p>
+          <h6>Height</h6>
+          <p><%= patient.height %> cm</p>
       </div>
       <div class="extra-div2">
-        <h6>Weight</h6>
-        <p><%= weight %> Kg</p>
+          <h6>Weight</h6>
+          <p><%= patient.weight %> Kg</p>
       </div>
   </div>
   <div style="height: 200px; width: 500px; background-color: #FF6B6B;float: right; padding: 10px;">
-    <h4>Appointments</h4>    
-    <ul>
-    
-  </ul>
+      <h4>Appointments</h4>
+      <ul>
+          <!-- Appointments data will be dynamically generated here -->
+          <% userAppointments.forEach(appointment => { %>
+              <li>
+                  Doctor: <%= appointment.d_id.fName %> <%= appointment.d_id.lName %><br>
+                  Date: <%= appointment.date %><br>
+              </li>
+          <% }); %>
+      </ul>
   </div>
   <div style="height: 200px; width: 500px; background-color: #ffffff;float: left; padding: 10px;">
-    <h4>Medications</h4>    
-    <ul>   
+      <h4>Medications</h4>
+      <ul>
+          <!-- Medications data will be dynamically generated here -->
+      </ul>
   </div>
 </div>
