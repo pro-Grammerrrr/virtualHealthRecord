@@ -137,8 +137,26 @@ const patientSchema = new mongoose.Schema({
         }
     ],
     appointments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }],
-    medicalHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MedicalHistory' }],
-    medication: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Medication' }],
+    medicalHistory: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'MedicalHistory'
+        }
+    ],
+
+    medications: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Medication'
+        }
+    ],
+
+    labResults: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'LabResults'
+        }
+    ]
 });
 const Patient = mongoose.model("Patient", patientSchema);
 // Registration Part where i save the users data and make an new Patient 
@@ -219,7 +237,7 @@ app.post('/login', (req, res, next) => {
                     return res.redirect('/signUp.html'); // Redirect to the login page
                 }
                 console.log('Login successful');
-                console.log(user);
+                // console.log(user);
                 return res.redirect('/patients/:' + user._id);
             });
         });
@@ -267,36 +285,35 @@ app.route("/patients")
 
 // Route for specific patient data
 app.route("/patients/:userId")
-    .get(function (req, res) {
-        Patient.findById(req.params.userId.slice(1))
-            .then((result) => {
-                if (result) {
-                    console.log(result);
+    .get(async (req, res) => {
+        try {
+            // Fetch the patient's profile
+            const patient = await Patient.findById(req.params.userId.slice(1));
+            if (!patient) {
+                return res.status(404).json({ message: 'Patient Not found' });
+            }
+            const medicalHistoryEntries = await MedicalHistory.find({ p_id: patient._id });
+            const medications = await Medication.find({ p_id: patient._id });
+            const labResults = await LabResults.find({ p_id: patient._id });
 
-                    // Fetch appointment data
-                    Appointment.find({ p_id: result._id })
-                    .populate('p_id', 'Fname Lname') // Populate patient's name
-                    .populate('d_id', 'fName lName') // Populate doctor's name
-                    .exec()
-                        .then(appointments => {
-                            console.log("Appointments for patient:", appointments); // Log the appointments
-                            // Render the patient dashboard with appointment data
-                            res.render('patients',
-                             { patient: result,
-                            userAppointments: appointments });
-                        })
-                        .catch(err => {
-                            // console.error(err);
-                            res.status(500).json({ error: "An error occurred while fetching appointments" });
-                        });
-                } else {
-                    res.status(404).json({ message: "Patient Not found" });
-                }
-            })
-            .catch((err) => {
-                // console.error(err);
-                res.status(500).json({ error: "Internal server error" });
+            // Fetch userAppointments within the same route handler
+            const userAppointments = await Appointment.find({ p_id: patient._id })
+                .populate('p_id', 'Fname Lname')
+                .populate('d_id', 'fName lName')
+                .exec();
+
+            // Render the patient dashboard with all the data, including userAppointments
+            res.render('patients', {
+                patient: patient,
+                medicalHistoryEntries: medicalHistoryEntries,
+                medications: medications,
+                labResults: labResults,
+                userAppointments: userAppointments,
             });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
     })
     .put(function (req, res) {
         const updatedData = req.body;
@@ -360,7 +377,7 @@ const doctorSchema = new mongoose.Schema({
 });
 const Doctor = mongoose.model("Doctor", doctorSchema);
 app.post('/doctor_registration', async (req, res) => {
-    console.log('User ID:', req.session.userId);
+    // console.log('User ID:', req.session.userId);
     try {
         // Check if the user is authenticated
         if (!req.session.userId) {
@@ -463,7 +480,7 @@ app.post('/docLogin', (req, res, next) => {
                     return res.redirect('/docSignUp.html'); // Redirect to the login page
                 }
                 console.log('Login successful');
-                console.log(user);
+                // console.log(user);
                 return res.redirect('/doctors/:' + user._id);
             });
         });
@@ -779,7 +796,7 @@ app.post('/appointments/accept/:id', async (req, res) => {
     try {
         // Update the appointment's status to "Accepted" in your database
         // Replace the following code with your actual database update logic
-        await Appointment.findByIdAndUpdate(appointmentId, { apponitmentStatus: 'Accepted' });
+        await Appointment.findByIdAndUpdate(appointmentId, { appointmentStatus: 'Accepted' });
 
         // Retrieve the appointment data to get the patient's ID
         const appointment = await Appointment.findById(appointmentId);
@@ -805,7 +822,7 @@ app.post('/appointments/reject/:id', async (req, res) => {
     try {
         // Update the appointment's status to "Rejected" in your database
         // Replace the following code with your actual database update logic
-        await Appointment.findByIdAndUpdate(appointmentId, { apponitmentStatus: 'Rejected' });
+        await Appointment.findByIdAndUpdate(appointmentId, { appointmentStatus: 'Rejected' });
         await Doctor.findByIdAndUpdate(req.params.userId < {})
         // Redirect to the appointment details page or any other appropriate page
         res.redirect('/appointments/' + appointmentId);
@@ -832,6 +849,61 @@ app.get('/doctors/patients/:patientId', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'An error occurred while fetching patient details' });
+    }
+});
+app.get('/medical-history-form', (req, res) => {
+    // Retrieve the doctor's and patient's IDs from the request or your session data
+    const doctorId = req.user.id; 
+    const patientId = req.query.patientId;
+console.log(doctorId);
+    // Render the medical history form with the doctor's, patient's, and appointment IDs
+    res.render('check-patient', { doctorId, patientId });
+});
+
+  
+// Making the patients medical history
+app.post('/save-medical-data', async (req, res) => {
+    try {
+        const doctorId = req.body.doctorId;
+        const patientId = req.body.patientId;
+        const medicalHistory = new MedicalHistory({
+            d_id: doctorId,
+            p_id: patientId,
+            condition: req.body.condition,
+            stage: req.body.stage,
+        });
+        const medication = new Medication({
+            d_id: doctorId,
+            p_id: patientId,
+            drug: req.body.drug,
+            dosage: req.body.dosage,
+        });
+        const labResults = new LabResults({
+            d_id: doctorId,
+            p_id: patientId,
+            test: req.body.test,
+            result: req.body.result,
+            referenceRanges: req.body.referenceRanges,
+            facility: req.body.facility,
+        });
+
+        // Save all three data types to the database
+        await Promise.all([medicalHistory.save(), medication.save(), labResults.save()]);
+        // Retrieve the patient document and push the medical data into an array
+        const patient = await Patient.findById(patientId);
+        if (patient) {
+            patient.medicalHistory.push(medicalHistory);
+            patient.medications.push(medication);
+            patient.labResults.push(labResults);
+
+            // Save the updated patient document
+            await patient.save();
+        }
+
+        res.send("Data saved successfully"); // Send a response or redirect as needed
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'An error occurred during data submission' });
     }
 });
 

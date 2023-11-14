@@ -1,0 +1,41 @@
+<h1>Entering Medical Data</h1>
+<form action="/save-medical-data" method="post">
+    <!-- Hidden input fields to store patientId and doctorId -->
+    <input type="hidden" name="patientId" value="<%= patientId %>">
+    <input type="hidden" name="doctorId" value="<%= doctorId %>">
+
+    <!-- Form fields for entering medical history details -->
+    <label for="condition">Medical Condition:</label>
+    <input type="text" name="condition" id="condition">
+
+    <label for="stage">Stage:</label>
+    <input type="text" name="stage" id="stage">
+
+    <!-- Add more form fields for other medical history details -->
+
+    <!-- Form fields for entering medication details -->
+    <label for="drug">Drug:</label>
+    <input type="text" name="drug" id="drug">
+
+    <label for="dosage">Dosage:</label>
+    <input type="text" name="dosage" id="dosage">
+
+    <!-- Add more form fields for other medication details -->
+
+    <!-- Form fields for entering lab results details -->
+    <label for="test">Test:</label>
+    <input type="text" name="test" id="test">
+
+    <label for="result">Result:</label>
+    <input type="text" name="result" id="result">
+
+    <label for="referenceRanges">Reference Ranges:</label>
+    <input type="text" name="referenceRanges" id="referenceRanges">
+
+    <label for="facility">Facility:</label>
+    <input type="text" name="facility" id="facility">
+
+    <!-- Add more form fields for other lab result details -->
+
+    <button type="submit">Save Medical Data</button>
+</form>

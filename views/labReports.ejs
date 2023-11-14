@@ -1,42 +1,19 @@
 <div class="container mt-4">
     <h1 class="mb-3">Lab Reports</h1>
-    <!-- Lab Report Entries -->
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Lab Report 1</h5>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><strong>Patient ID:</strong> 12345</li>
-                        <li class="list-group-item"><strong>Test Name or Type:</strong> Blood Test</li>
-                        <li class="list-group-item"><strong>Date of the Test:</strong> March 15, 2022</li>
-                        <li class="list-group-item"><strong>Healthcare Provider ID:</strong> 67890</li>
-                        <li class="list-group-item"><strong>Test Result:</strong> 120 mg/dL</li>
-                        <li class="list-group-item"><strong>Reference Ranges:</strong> 70-130 mg/dL</li>
-                        <li class="list-group-item"><strong>Interpretation or Comments:</strong> Normal</li>
-                        <li class="list-group-item"><strong>Lab Name or Facility:</strong> ABC Lab</li>
-                        <li class="list-group-item"><strong>Notes:</strong> Routine check-up</li>
-                    </ul>
+    <!-- Loop through and display lab report entries -->
+    <% labResults.forEach((result, index) => { %>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Lab Report <%= index + 1 %></h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><strong>Test Name or Type:</strong> <%= result.test %></li>
+                            <!-- Add more fields as needed -->
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Lab Report 2</h5>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><strong>Patient ID:</strong> 54321</li>
-                        <li class="list-group-item"><strong>Test Name or Type:</strong> Urine Analysis</li>
-                        <li class="list-group-item"><strong>Date of the Test:</strong> June 5, 2021</li>
-                        <li class="list-group-item"><strong>Healthcare Provider ID:</strong> 67890</li>
-                        <li class="list-group-item"><strong>Test Result:</strong> Normal</li>
-                        <li class="list-group-item"><strong>Reference Ranges:</strong> N/A</li>
-                        <li class="list-group-item"><strong>Interpretation or Comments:</strong> No abnormalities</li>
-                        <li class="list-group-item"><strong>Lab Name or Facility:</strong> XYZ Diagnostics</li>
-                        <li class="list-group-item"><strong>Notes:</strong> Follow-up test</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <% }); %>
 </div>

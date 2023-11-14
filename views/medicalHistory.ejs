@@ -1,38 +1,21 @@
 <div class="container mt-4">
     <h1 class="mb-3">Medical History</h1>
-    <!-- Medical History Entries -->
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Medical History Entry 1</h5>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><strong>Condition Name or Diagnosis:</strong> Hypertension</li>
-                        <li class="list-group-item"><strong>Date of Diagnosis:</strong> January 15, 2010</li>
-                        <li class="list-group-item"><strong>Severity or Stage of the Condition:</strong> Stage 2</li>
-                        <li class="list-group-item"><strong>Treatment Plan or Recommendations:</strong> Diet and exercise</li>
-                        <li class="list-group-item"><strong>Ongoing Medications (related to the condition):</strong> Medication 1, Medication 2</li>
-                        <li class="list-group-item"><strong>Notes (additional details about the condition):</strong> High blood pressure</li>
-                        <li class="list-group-item"><strong>Diagnosed by Doctor:</strong> Dr. Smith</li>
-                    </ul>
+    <!-- Loop through and display medical history entries -->
+    <% medicalHistoryEntries.forEach((entry, index) => { %>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Medical History Entry <%= index + 1 %></h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><strong>Condition Name or Diagnosis:</strong> <%= entry.condition %></li>
+                            <li class="list-group-item"><strong>Date of Diagnosis:</strong> <%= entry.dateOfDiagnosis %></li>
+                            <li class="list-group-item"><strong>Severity or Stage of the Condition:</strong> <%= entry.severity %></li>
+                            <li class="list-group-item"><strong>Treatment Plan or Recommendations:</strong> <%= entry.treatmentPlan %></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Medical History Entry 2</h5>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><strong>Condition Name or Diagnosis:</strong> Diabetes</li>
-                        <li class="list-group-item"><strong>Date of Diagnosis:</strong> May 20, 2015</li>
-                        <li class="list-group-item"><strong>Severity or Stage of the Condition:</strong> Type 2</li>
-                        <li class="list-group-item"><strong>Treatment Plan or Recommendations:</strong> Insulin therapy</li>
-                        <li class="list-group-item"><strong>Ongoing Medications (related to the condition):</strong> Insulin</li>
-                        <li class="list-group-item"><strong>Notes (additional details about the condition):</strong> Monitor blood sugar levels</li>
-                        <li class="list-group-item"><strong>Diagnosed by Doctor:</strong> Dr. Johnson</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <% }); %>
 </div>

@@ -70,5 +70,13 @@
 
     <!-- Include a button or link to go back to the list of patients or any other page as needed -->
     <button id="goBackButton">Go Back</button>
-    <button>Check Patient</button>
+<!-- Inside your patient details page -->
+<a href="/medical-history-form?patientId=<%= patient.id%>">Check Patient</a>
+
+
+    <script>
+    function redirectToMedicalHistoryForm() {
+      window.location.href = '/medical-history-form'; // Redirect to the medical history form route
+    }
+    </script>
 

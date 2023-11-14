@@ -19,13 +19,12 @@
                     <td><%= appointment.date %></td>
                     <td>
                         <span class="badge <%= appointment.apponitmentStatus %>">
-                            <%= appointment.apponitmentStatus %>
+                            <%= appointment.appointmentStatus %>
                         </span>
                     </td>
-                    
                     <td>
                         <a href="#" class="view-button" data-appointment-id="<%= appointment._id %>">View</a>
-                    </td>
+                 </td>
                 </tr>
             <% }); %>
             
