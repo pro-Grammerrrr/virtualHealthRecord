@@ -11,18 +11,24 @@
         <tbody>
             <% doctorAppointments.forEach(appointment => { %>
                 <tr>
-                    <td><%= appointment.p_id.Fname %> <%= appointment.p_id.Lname %></td>
+                    <td>
+                        <% appointment.p_id.forEach(patient => { %>
+                            <h5>Patient: <%= patient.Fname %> <%= patient.Lname %></h5>
+                        <% }); %>
+                    </td>
                     <td><%= appointment.date %></td>
                     <td>
-                        <span class="badge <%= appointment.appointmentStatus %>">
-                            <%= appointment.appointmentStatus %>
+                        <span class="badge <%= appointment.apponitmentStatus %>">
+                            <%= appointment.apponitmentStatus %>
                         </span>
                     </td>
+                    
                     <td>
                         <a href="#" class="view-button" data-appointment-id="<%= appointment._id %>">View</a>
                     </td>
                 </tr>
             <% }); %>
+            
         </tbody>
     </table>
 </div>

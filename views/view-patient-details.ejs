@@ -1,0 +1,74 @@
+
+    <h1>Patient Medical Details</h1>
+    <table>
+        <tr>
+            <th>Name</th>
+            <td><%= patient.Fname %> <%= patient.Lname %></td>
+        </tr>
+        <tr>
+            <th>Date of Birth</th>
+            <td><%= patient.dateOfBirth %></td>
+        </tr>
+        <tr>
+            <th>Phone Number</th>
+            <td><%= patient.ph %></td>
+        </tr>
+        <tr>
+            <th>Age</th>
+            <td><%= patient.age %> years</td>
+        </tr>
+        <tr>
+            <th>Address</th>
+            <td><%= patient.address %></td>
+        </tr>
+        <tr>
+            <th>Gender</th>
+            <td><%= patient.gender %></td>
+        </tr>
+        <tr>
+            <th>Blood Group</th>
+            <td><%= patient.bloodGroup %></td>
+        </tr>
+        <tr>
+            <th>Country</th>
+            <td><%= patient.country %></td>
+        </tr>
+        <tr>
+            <th>State</th>
+            <td><%= patient.state %></td>
+        </tr>
+        <tr>
+            <th>Height</th>
+            <td><%= patient.height %> cm</td>
+        </tr>
+        <tr>
+            <th>Weight</th>
+            <td><%= patient.weight %> kg</td>
+        </tr>
+        <tr>
+            <th>Blood Pressure (BP)</th>
+            <td><%= patient.bp %> mmHg</td>
+        </tr>
+        <tr>
+            <th>Heart Rate</th>
+            <td><%= patient.heartRate %> bpm</td>
+        </tr>
+        <tr>
+            <th>Previous Medical Conditions</th>
+            <td>
+                <ul>
+                    <% patient.prevMedical.forEach(medical => { %>
+                        <li>
+                            <strong>Condition:</strong> <%= medical.condition %><br>
+                            <strong>Treatment:</strong> <%= medical.treatment %>
+                        </li>
+                    <% }); %>
+                </ul>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Include a button or link to go back to the list of patients or any other page as needed -->
+    <button id="goBackButton">Go Back</button>
+    <button>Check Patient</button>
+

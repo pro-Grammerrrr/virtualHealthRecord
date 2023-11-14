@@ -214,10 +214,11 @@
         <div id="tab2" class="tab" style="display: none;">
                 <h2>Appointments</h2>
                 <%- include('docAppointment'); -%>
-    
+        </div>
         <div id="tab3" class= "tab" style="display: none;">
             <h2>Patients</h2>
-            <p>heyy</p>
+            <%- include('docPatients'); -%>
+            
         </div>
     </div>
 
@@ -244,6 +245,16 @@
             // Redirect to the appointment details page with the appointmentId
             window.location.href = "/doctors/appointments/" + appointmentId;
         });
+        $(".view-patient-button").click(function(event) {
+            event.preventDefault(); // Prevent the default link behavior
+            // Get the patient ID from the link's attribute
+            const patientId =$(this).data("patient-id");
+            // Redirect to the patient details page with the patient ID
+            window.location.href = "/doctors/patients/" + patientId;
+        });
+        });
+        document.getElementById('goBackButton').addEventListener('click', function () {
+            history.back();
         });
     </script>
 </body>

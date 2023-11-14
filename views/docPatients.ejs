@@ -1,0 +1,20 @@
+<div class="custom-table">
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% patients.forEach(patient => { %>
+                <tr>
+                    <td><%= patient.Fname %> <%= patient.Lname %></td>
+                    <td style="color: aqua;">
+                        <a data-patient-id="<%= patient._id %>" class="view-patient-button">View Patient</a>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</div>

@@ -470,33 +470,34 @@ app.post('/docLogin', (req, res, next) => {
     })(req, res, next);
 });
 
-app.route("/doctors/:userId")
-    .get(function (req, res) {
-        const uid = req.params.userId;
+app.route('/doctors/:userId')
+    .get(async (req, res) => {
+        try {
+            const uid = req.params.userId;
 
-        Doctor.findById(uid.slice(1))
-            .then((result) => {
-                if (result) {
-                    // Fetch the doctor's appointments here
-                    Appointment.find({ d_id: result._id })
-                        .populate('p_id', 'Fname Lname')
-                        .exec()
-                        .then(appointments => {
-                            // Render the doctor's dashboard with the appointments data
-                            res.render('doctors', { doctor: result, doctorAppointments: appointments });
-                        })
-                        .catch(err => {
-                            // Handle the error
-                            res.status(500).json({ error: "An error occurred while fetching appointments" });
-                        });
-                } else {
-                    res.status(404).json({ message: "Doctor Not found" });
-                }
-            })
-            .catch((err) => {
-                console.error(err);
-                res.status(500).json({ error: "Internal server error" });
+            const doctor = await Doctor.findById(uid.slice(1));
+            if (!doctor) {
+                return res.status(404).json({ message: 'Doctor not found' });
+            }
+
+            // Fetch the doctor's appointments
+            const appointments = await Appointment.find({ d_id: doctor._id }).populate('p_id', 'Fname Lname').exec();
+
+            // Fetch the list of patients
+            const patients = await Patient.find({}); // You can add conditions if needed
+
+            // Customize the displayInfo property for each patient
+            patients.forEach(patient => {
+                // Customize the displayInfo based on your requirements
+                patient.displayInfo = `Some custom information for ${patient.Fname} ${patient.Lname}`;
             });
+
+            // Render the doctor's dashboard with appointments and customized patient information
+            res.render('doctors', { doctor: doctor, doctorAppointments: appointments, patients: patients });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal server error' });
+        }
     });
 
 
@@ -509,7 +510,7 @@ const apponitmentSchema = new mongoose.Schema({
     time : String,
     notes : String,
     diagnose_condition : String,
-    apponitmentStatus : String,
+    appointmentStatus : String,
 });
 const Appointment = mongoose.model("Appointment", apponitmentSchema);
 app.route("/appointment")
@@ -531,7 +532,7 @@ app.route("/appointment")
         const newAppointment = new Appointment(req.body);
         // Assign the current user's ID (patient ID) to the p_id field
         newAppointment.p_id = req.user.id;
-        newAppointment.apponitmentStatus = "Pending";
+        newAppointment.appointmentStatus = "Pending";
         // Save the appointment
         newAppointment.save()
             .then(savedAppointment => {
@@ -771,8 +772,7 @@ app.route("/labResults")
                 res.status(500).json({ error: 'An error occurred while fetching appointment details' });
             }
         });
-
-// Handle appointment acceptance
+        
 app.post('/appointments/accept/:id', async (req, res) => {
     const appointmentId = req.params.id;
 
@@ -781,13 +781,23 @@ app.post('/appointments/accept/:id', async (req, res) => {
         // Replace the following code with your actual database update logic
         await Appointment.findByIdAndUpdate(appointmentId, { apponitmentStatus: 'Accepted' });
 
+        // Retrieve the appointment data to get the patient's ID
+        const appointment = await Appointment.findById(appointmentId);
+
+        // Check if the appointment was found
+        if (!appointment) {
+            return res.status(404).json({ error: "Appointment not found" });
+        }
+
+        // Push the patient's ID into the doctor's 'patients' array
+        await Doctor.findByIdAndUpdate(appointment.d_id, { $push: { patients: appointment.p_id } });
+
         // Redirect to the appointment details page or any other appropriate page
         res.redirect('/appointments/' + appointmentId);
     } catch (err) {
         res.status(500).json({ error: "An error occurred while accepting the appointment" });
     }
 });
-
 // Handle appointment rejection
 app.post('/appointments/reject/:id', async (req, res) => {
     const appointmentId = req.params.id;
@@ -796,11 +806,32 @@ app.post('/appointments/reject/:id', async (req, res) => {
         // Update the appointment's status to "Rejected" in your database
         // Replace the following code with your actual database update logic
         await Appointment.findByIdAndUpdate(appointmentId, { apponitmentStatus: 'Rejected' });
-
+        await Doctor.findByIdAndUpdate(req.params.userId < {})
         // Redirect to the appointment details page or any other appropriate page
         res.redirect('/appointments/' + appointmentId);
     } catch (err) {
         res.status(500).json({ error: "An error occurred while rejecting the appointment" });
+    }
+});
+app.get('/doctors/patients/:patientId', async (req, res) => {
+    try {
+        const patientId = req.params.patientId;
+
+        if (!mongoose.Types.ObjectId.isValid(patientId)) {
+            return res.status(400).json({ message: 'Invalid patient ID' });
+        }
+
+        const patient = await Patient.findById(patientId);
+
+        if (!patient) {
+            return res.status(404).json({ message: 'Patient not found' });
+        }
+
+        // Render a page to view the patient's details
+        res.render('view-patient-details', { patient: patient });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'An error occurred while fetching patient details' });
     }
 });
 
