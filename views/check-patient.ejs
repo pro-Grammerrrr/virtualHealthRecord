@@ -3,7 +3,15 @@
     <!-- Hidden input fields to store patientId and doctorId -->
     <input type="hidden" name="patientId" value="<%= patientId %>">
     <input type="hidden" name="doctorId" value="<%= doctorId %>">
-
+    <label for="appointment">Select Appointment:</label>
+    <select name="appointment" id="appointment">
+        <% for (const appointment of appointments) { %>
+            <option value="<%= appointment._id %>">
+                <%= appointment.date %> - <%= appointment.time %>
+            </option>
+        <% } %>
+    </select>
+    
     <!-- Form fields for entering medical history details -->
     <label for="condition">Medical Condition:</label>
     <input type="text" name="condition" id="condition">

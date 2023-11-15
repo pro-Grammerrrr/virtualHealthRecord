@@ -625,7 +625,7 @@ const medicalHistorySchema = new mongoose.Schema({
     condition_id : Number, 
     p_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Patient' }],
     d_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Doctor' }],
-    conditon : String ,
+    condition : String,
     stage : String,
     a_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }]
 });
@@ -727,7 +727,6 @@ app.route("/medications")
     a_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }]
  });
 const LabResults = mongoose.model("LabResults" , labResultsSchema);
-
 app.route("/labResults")
         .get((req ,res)=>{
             LabResults.find({})
@@ -789,7 +788,25 @@ app.route("/labResults")
                 res.status(500).json({ error: 'An error occurred while fetching appointment details' });
             }
         });
-        
+ //function to fetch appointments for a specific doctor and patient
+ async function getAppointmentsForDoctorAndPatient(doctorId, patientId) {
+    try {
+        console.log('Fetching appointments for doctorId:', doctorId, 'and patientId:', patientId);
+        const appointments = await Appointment.find({
+            d_id: doctorId,
+            p_id: patientId,
+        });
+
+        console.log('Appointments:', appointments);
+
+        return appointments;
+    } catch (error) {
+        console.error(error);
+        throw new Error('Error fetching appointments');
+    }
+}
+
+
 app.post('/appointments/accept/:id', async (req, res) => {
     const appointmentId = req.params.id;
 
@@ -851,32 +868,43 @@ app.get('/doctors/patients/:patientId', async (req, res) => {
         res.status(500).json({ error: 'An error occurred while fetching patient details' });
     }
 });
-app.get('/medical-history-form', (req, res) => {
-    // Retrieve the doctor's and patient's IDs from the request or your session data
-    const doctorId = req.user.id; 
+app.get('/medical-history-form', async (req, res) => {
+    const doctorId = req.user.id;
     const patientId = req.query.patientId;
-console.log(doctorId);
-    // Render the medical history form with the doctor's, patient's, and appointment IDs
-    res.render('check-patient', { doctorId, patientId });
+    try {
+        // Fetch the appointments for the selected doctor and patient
+        const appointments = await getAppointmentsForDoctorAndPatient(doctorId, patientId);
+        console.log(appointments);
+        res.render('check-patient', {
+            doctorId,
+            patientId,
+            appointments, // Pass the appointments data to the view
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'An error occurred while fetching appointments' });
+    }
 });
 
-  
 // Making the patients medical history
 app.post('/save-medical-data', async (req, res) => {
     try {
         const doctorId = req.body.doctorId;
         const patientId = req.body.patientId;
+        const appointmentId = req.body.appointment; // Retrieve the selected appointment
         const medicalHistory = new MedicalHistory({
             d_id: doctorId,
             p_id: patientId,
             condition: req.body.condition,
             stage: req.body.stage,
+            appointment: appointmentId, // Assign the selected appointment to the medical history
         });
         const medication = new Medication({
             d_id: doctorId,
             p_id: patientId,
             drug: req.body.drug,
             dosage: req.body.dosage,
+            appointment: appointmentId, // Assign the selected appointment to the medication
         });
         const labResults = new LabResults({
             d_id: doctorId,
@@ -885,8 +913,8 @@ app.post('/save-medical-data', async (req, res) => {
             result: req.body.result,
             referenceRanges: req.body.referenceRanges,
             facility: req.body.facility,
+            appointment: appointmentId, // Assign the selected appointment to the lab results
         });
-
         // Save all three data types to the database
         await Promise.all([medicalHistory.save(), medication.save(), labResults.save()]);
         // Retrieve the patient document and push the medical data into an array
@@ -899,14 +927,12 @@ app.post('/save-medical-data', async (req, res) => {
             // Save the updated patient document
             await patient.save();
         }
-
         res.send("Data saved successfully"); // Send a response or redirect as needed
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'An error occurred during data submission' });
     }
 });
-
 
 app.listen(3000, function () {
     console.log("Server started on port 3000");
