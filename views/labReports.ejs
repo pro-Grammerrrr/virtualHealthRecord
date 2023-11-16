@@ -1,19 +1,29 @@
 <div class="container mt-4">
     <h1 class="mb-3">Lab Reports</h1>
-    <!-- Loop through and display lab report entries -->
-    <% labResults.forEach((result, index) => { %>
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Lab Report <%= index + 1 %></h5>
-                        <ul class="list-group list-group-flush">
-                            <li class="list-group-item"><strong>Test Name or Type:</strong> <%= result.test %></li>
-                            <!-- Add more fields as needed -->
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    <% }); %>
+    <div class="table-responsive">
+        <table class="table table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Test Name</th>
+                    <th scope="col">Test Result</th>
+                    <th scope="col">Reference Ranges</th>
+                    <th scope="col">Interpretation</th>
+                    <th scope="col">Facility Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% labResults.forEach((result, index) => { %>
+                    <tr>
+                        <th scope="row"><%= index + 1 %></th>
+                        <td><%= result.testName %></td>
+                        <td><%= result.testResult %></td>
+                        <td><%= result.referenceRanges %></td>
+                        <td><%= result.interpretationOrComments %></td>
+                        <td><%= result.labNameOrFacility %></td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
 </div>

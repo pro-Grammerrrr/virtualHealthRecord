@@ -4,6 +4,7 @@
             <tr>
                 <th>Patient Name</th>
                 <th>Appointment Date</th>
+                <th>Appointment time</th>
                 <th>Status</th>
                 <th>Action</th>
             </tr>
@@ -17,13 +18,15 @@
                         <% }); %>
                     </td>
                     <td><%= appointment.date %></td>
+                    <td><%= appointment.time%></td>
+
                     <td>
-                        <span class="badge <%= appointment.apponitmentStatus %>">
+                        <span class="badge <%= appointment.appointmentStatus %>">
                             <%= appointment.appointmentStatus %>
                         </span>
                     </td>
                     <td>
-                        <a href="#" class="view-button" data-appointment-id="<%= appointment._id %>">View</a>
+                        <a href="#" class="view-button" data-appointment-id="<%= appointment._id %>">View  </a>
                  </td>
                 </tr>
             <% }); %>

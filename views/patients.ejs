@@ -106,6 +106,27 @@
   </div>
 </div>
 <script src="script/dashboard.js"></script>
+<script>
+     $(document).ready(function() {
+             $(".view-button").on("click", function (event) {
+            event.preventDefault();
+            var appointmentId = $(this).data("appointment-id");
+            // Redirect to the appointment details page with the appointmentId
+            window.location.href = "/doctors/appointments/" + appointmentId;
+        });
+    });
+    const dateInput = document.getElementById('date');
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0];
+    dateInput.setAttribute('min', formattedDate);
+dateInput.addEventListener("input", function () {
+    if (dateInput.validity.valid) {
+        const selectedDate = new Date(dateInput.value);
+        dateInput.value = selectedDate.toISOString().split("T")[0];
+    }
+});
+
+</script>
 <!-- Add this script before the closing </body> tag -->
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

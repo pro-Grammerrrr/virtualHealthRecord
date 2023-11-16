@@ -1,0 +1,52 @@
+<body>
+    <h1>Diagnosed Appointment Report</h1>
+    <h2>Appointment Details</h2>
+    <p><strong>Date:</strong> <%= appointment.date %></p>
+    <p><strong>Time:</strong> <%= appointment.time %></p>
+    <p><strong>Diagnosed Condition:</strong> <%= appointment.diagnose_condition %></p>
+    
+    <h2>Medical History</h2>
+    <% if (appointment.medicalHistory.length > 0) { %>
+        <ul>
+            <% appointment.medicalHistory.forEach((history) => { %>
+                <li><strong>Condition:</strong> <%= history.condition %></li>
+                <li><strong>Stage:</strong> <%= history.stage %></li>
+                <li><strong>Treatment:</strong> <%= history.treatment %></li>
+                <li><strong>Notes:</strong> <%= history.notes %></li>
+            <% }) %>
+        </ul>
+    <% } else { %>
+        <p>No medical history available.</p>
+    <% } %>
+
+    <h2>Medications</h2>
+    <% if (appointment.medications.length > 0) { %>
+        <ul>
+            <% appointment.medications.forEach((medication) => { %>
+                <li><strong>Medication Name:</strong> <%= medication.medicationName %></li>
+                <li><strong>Prescription Date:</strong> <%= medication.prescriptionDate %></li>
+                <li><strong>Dosage Instructions:</strong> <%= medication.dosageInstructions %></li>
+                <li><strong>Frequency of Administration:</strong> <%= medication.frequencyOfAdministration %></li>
+                <li><strong>Medication Expiration Date:</strong> <%= medication.medicationExpirationDate %></li>
+                <li><strong>Medication Status:</strong> <%= medication.medicationStatus %></li>
+            <% }) %>
+        </ul>
+    <% } else { %>
+        <p>No medications prescribed.</p>
+    <% } %>
+
+    <h2>Lab Results</h2>
+    <% if (appointment.labResult.length > 0) { %>
+        <ul>
+            <% appointment.labResult.forEach((lab) => { %>
+                <li><strong>Test Name:</strong> <%= lab.testName %></li>
+                <li><strong>Test Result:</strong> <%= lab.testResult %></li>
+                <li><strong>Reference Ranges:</strong> <%= lab.referenceRanges %></li>
+                <li><strong>Interpretation/Comments:</strong> <%= lab.interpretationOrComments %></li>
+                <li><strong>Lab/Facility:</strong> <%= lab.labNameOrFacility %></li>
+            <% }) %>
+        </ul>
+    <% } else { %>
+        <p>No lab results available.</p>
+    <% } %>
+</body>

@@ -154,7 +154,7 @@ const patientSchema = new mongoose.Schema({
     labResults: [
         {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'LabResults'
+            ref: 'LabResult'
         }
     ]
 });
@@ -238,7 +238,7 @@ app.post('/login', (req, res, next) => {
                 }
                 console.log('Login successful');
                 // console.log(user);
-                return res.redirect('/patients/:' + user._id);
+                return res.redirect('/patients/' + user._id);
             });
         });
     })(req, res, next);
@@ -288,26 +288,27 @@ app.route("/patients/:userId")
     .get(async (req, res) => {
         try {
             // Fetch the patient's profile
-            const patient = await Patient.findById(req.params.userId.slice(1));
+            const patient = await Patient.findById(req.params.userId);
             if (!patient) {
                 return res.status(404).json({ message: 'Patient Not found' });
             }
-            const medicalHistoryEntries = await MedicalHistory.find({ p_id: patient._id });
+            const medicalHistoryEntries = await MedicalHistory.find({ p_id: patient._id })
+            .populate('d_id', 'fName lName')
+            .exec();
             const medications = await Medication.find({ p_id: patient._id });
-            const labResults = await LabResults.find({ p_id: patient._id });
-
+            const labResult = await LabResult.find({ p_id: patient._id });
             // Fetch userAppointments within the same route handler
             const userAppointments = await Appointment.find({ p_id: patient._id })
                 .populate('p_id', 'Fname Lname')
                 .populate('d_id', 'fName lName')
+                .populate('d_id', 'fName lName')
                 .exec();
-
             // Render the patient dashboard with all the data, including userAppointments
             res.render('patients', {
                 patient: patient,
                 medicalHistoryEntries: medicalHistoryEntries,
                 medications: medications,
-                labResults: labResults,
+                labResults: labResult,
                 userAppointments: userAppointments,
             });
         } catch (error) {
@@ -500,36 +501,63 @@ app.route('/doctors/:userId')
             // Fetch the doctor's appointments
             const appointments = await Appointment.find({ d_id: doctor._id }).populate('p_id', 'Fname Lname').exec();
 
-            // Fetch the list of patients
-            const patients = await Patient.find({}); // You can add conditions if needed
+            // Fetch the list of all patients
+            const patients = await Patient.find({});
 
             // Customize the displayInfo property for each patient
             patients.forEach(patient => {
                 // Customize the displayInfo based on your requirements
                 patient.displayInfo = `Some custom information for ${patient.Fname} ${patient.Lname}`;
             });
+            // Fetch diagnosed patients using MedicalHistory
+            // Fetch diagnosed patients using the Appointment model
+            const diagnosedPatients = await Appointment.find({ d_id: doctor._id, diagnosed: true }).populate('p_id', 'Fname Lname').exec();
+            // Customize the displayInfo property for each diagnosed patient
+            diagnosedPatients.forEach(patient => {
+                // Customize the displayInfo based on your requirements
+                // Ensure 'p_id' is the correct reference to the 'Patient' model
+                patient.displayInfo = `Some custom information for ${patient.p_id.Fname} ${patient.p_id.Lname}`;
+            });
 
-            // Render the doctor's dashboard with appointments and customized patient information
-            res.render('doctors', { doctor: doctor, doctorAppointments: appointments, patients: patients });
+            // Render the doctor's dashboard with appointments, all patients, and diagnosed patients
+            res.render('doctors', {
+                doctor: doctor,
+                doctorAppointments: appointments,
+                patients: patients,
+                diagnosedPatients: diagnosedPatients
+            });
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: 'Internal server error' });
         }
     });
-
-
 ////------------->Appointments Schema <------------
-const apponitmentSchema = new mongoose.Schema({
-    p_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Patient' }],
-    d_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Doctor' }],
-    // venue : String,
-    date : Date,
-    time : String,
-    notes : String,
-    diagnose_condition : String,
-    appointmentStatus : String,
+const appointmentSchema = new mongoose.Schema({
+    p_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Patient' }],
+    d_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Doctor' }],
+    date: {
+        type: String,
+        set: function (date) {
+            const options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' };
+            const formattedDate = new Date(date).toLocaleDateString('en-US', options);
+            return formattedDate;
+        }
+    },
+    time: String,
+    notes: String,
+    diagnose_condition: String,
+    appointmentStatus: String,
+    diagnosed: {
+        type: Boolean,
+        default: false,
+    },
+    // Add references to medical history and medication
+    medicalHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MedicalHistory' }],
+    medications: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Medication' }],
+    labResult: [{ type: mongoose.Schema.Types.ObjectId, ref: 'LabResult' }],
 });
-const Appointment = mongoose.model("Appointment", apponitmentSchema);
+
+const Appointment = mongoose.model("Appointment", appointmentSchema);
 app.route("/appointment")
     .get(function (req, res) {
         Appointment.find({})
@@ -549,7 +577,7 @@ app.route("/appointment")
         const newAppointment = new Appointment(req.body);
         // Assign the current user's ID (patient ID) to the p_id field
         newAppointment.p_id = req.user.id;
-        newAppointment.appointmentStatus = "Pending";
+        newAppointment.appointmentStatus = "pending";
         // Save the appointment
         newAppointment.save()
             .then(savedAppointment => {
@@ -576,11 +604,11 @@ app.route("/appointment")
                 res.status(500).json({ error: "An error occurred" });
             });
     });
+    
 //Getting an specific Apppointemnt
 app.route("/appointments/:appointmentId")
     .get(function (req, res) {
         const appointmentId = req.params.appointmentId;
-
         Appointment.findById(appointmentId)
             .populate({
                 path: 'p_id',
@@ -595,29 +623,11 @@ app.route("/appointments/:appointmentId")
                 if (!foundAppointment) {
                     return res.status(404).json({ message: "Appointment not found" });
                 }
-
                 res.status(200).json(foundAppointment);
             })
             .catch(err => {
                 console.error(err);
                 res.status(500).json({ error: "An error occurred" });
-            });
-    });
-
-    app.get('/getAppointments', (req, res) => {
-        // Fetch the user's appointment data, similar to the previous example
-        // Replace this with your actual Mongoose query to fetch appointments associated with the user ID
-        console.log('getAppointments route called')
-        // For example:
-        Appointment.find({ p_id: req.user.id })
-            .populate('d_id')
-            .exec()
-            .then(appointments => {
-                res.json({ userAppointments: appointments });
-            })
-            .catch(err => {
-                console.error(err);
-                res.status(500).json({ error: "An error occurred while fetching appointments" });
             });
     });
 //------------->Medical History <-------------
@@ -627,7 +637,10 @@ const medicalHistorySchema = new mongoose.Schema({
     d_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Doctor' }],
     condition : String,
     stage : String,
-    a_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }]
+    treatment: String,
+    notes: String,
+    diagnosisDate : String,
+    appointment :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }]
 });
 const MedicalHistory = mongoose.model("MedicalHistory" , medicalHistorySchema);
 //Route for All listing of medical HIstory
@@ -674,9 +687,13 @@ const medicationSchema = new mongoose.Schema({
     medicine_id : Number, 
     p_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Patient' }],
     d_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Doctor' }],
-    drug : String ,
-    dosage : String,
-    a_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }]
+    medicationName: String,
+    prescriptionDate : String,
+    dosageInstructions: String,
+    frequencyOfAdministration: String,
+    medicationExpirationDate: String,
+    medicationStatus: String,
+    appointment :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }]
 });
 const Medication = mongoose.model("Medication" , medicationSchema);
 app.route("/medications")
@@ -720,13 +737,14 @@ app.route("/medications")
  const labResultsSchema = new mongoose.Schema({
     p_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Patient' }],
     d_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Doctor' }],
-    test : String ,
-    result : String,
-    referenceRanges : String,
-    facility : String,
-    a_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }]
+    testName: String,
+    testResult: String,
+    referenceRanges: String,
+    interpretationOrComments: String,
+    labNameOrFacility: String,
+    appointment :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }]
  });
-const LabResults = mongoose.model("LabResults" , labResultsSchema);
+ const LabResult = mongoose.model("LabResult", labResultsSchema);
 app.route("/labResults")
         .get((req ,res)=>{
             LabResults.find({})
@@ -764,56 +782,54 @@ app.route("/labResults")
                     res.status(500).json({ error: "Error deleting Medication" });
                 });
         });
-        app.get('/doctors/appointments/:appointmentId', async (req, res) => {
-            try {
-                // Fetch the appointment details using the appointmentId
-                const appointmentId = req.params.appointmentId;
+app.get('/doctors/appointments/:appointmentId', async (req, res) => {
+    try {
+        const appointmentId = req.params.appointmentId;
+        const appointment = await Appointment
+        .findById(appointmentId)
+        .populate('p_id', 'Fname Lname')
+        .populate('d_id')
+        .populate('medicalHistory') // Populate medical history data
+        .populate('medications') // Populate medication data
+        .exec();
+        if (!appointment) {
+            return res.status(404).json({ message: 'Appointment Not found' });
+        }
+        if (appointment.diagnosed) {
+            res.render('report', {
+                appointment: appointment,
+            });
+        } else {
+            res.render('appointment-details', {
+                appointment: appointment,
+            });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'An error occurred while fetching appointment details' });
+    }
+});
         
-                // Fetch the appointment and other necessary data using Mongoose
-                const appointment = await Appointment
-                    .findById(appointmentId)
-                    .populate('p_id', 'Fname Lname')
-                    .exec();
-        
-                if (!appointment) {
-                    return res.status(404).json({ message: 'Appointment Not found' });
-                }
-        
-                // Render the appointment details page with the appointment data
-                res.render('appointment-details', {
-                    appointment: appointment,
-                });
-            } catch (err) {
-                console.error(err);
-                res.status(500).json({ error: 'An error occurred while fetching appointment details' });
-            }
-        });
  //function to fetch appointments for a specific doctor and patient
  async function getAppointmentsForDoctorAndPatient(doctorId, patientId) {
     try {
-        console.log('Fetching appointments for doctorId:', doctorId, 'and patientId:', patientId);
         const appointments = await Appointment.find({
             d_id: doctorId,
             p_id: patientId,
         });
-
-        console.log('Appointments:', appointments);
-
         return appointments;
     } catch (error) {
         console.error(error);
         throw new Error('Error fetching appointments');
     }
 }
-
-
 app.post('/appointments/accept/:id', async (req, res) => {
     const appointmentId = req.params.id;
 
     try {
         // Update the appointment's status to "Accepted" in your database
         // Replace the following code with your actual database update logic
-        await Appointment.findByIdAndUpdate(appointmentId, { appointmentStatus: 'Accepted' });
+        await Appointment.findByIdAndUpdate(appointmentId, { appointmentStatus: 'confirmed' });
 
         // Retrieve the appointment data to get the patient's ID
         const appointment = await Appointment.findById(appointmentId);
@@ -839,7 +855,7 @@ app.post('/appointments/reject/:id', async (req, res) => {
     try {
         // Update the appointment's status to "Rejected" in your database
         // Replace the following code with your actual database update logic
-        await Appointment.findByIdAndUpdate(appointmentId, { appointmentStatus: 'Rejected' });
+        await Appointment.findByIdAndUpdate(appointmentId, { appointmentStatus: 'cancelled' });
         await Doctor.findByIdAndUpdate(req.params.userId < {})
         // Redirect to the appointment details page or any other appropriate page
         res.redirect('/appointments/' + appointmentId);
@@ -892,42 +908,65 @@ app.post('/save-medical-data', async (req, res) => {
         const doctorId = req.body.doctorId;
         const patientId = req.body.patientId;
         const appointmentId = req.body.appointment; // Retrieve the selected appointment
+        const condition = req.body.condition;
+        const stage = req.body.stage;
+        const treatment = req.body.treatment;
+        const notes = req.body.notes;
+        // Create medical history, medication, and lab results documents
         const medicalHistory = new MedicalHistory({
             d_id: doctorId,
             p_id: patientId,
             condition: req.body.condition,
-            stage: req.body.stage,
-            appointment: appointmentId, // Assign the selected appointment to the medical history
+            stage: stage,
+            treatment: treatment,
+            notes: notes,
+            diagnosisDate : req.body.diagnosisDate,
+            appointment: appointmentId,
         });
+
         const medication = new Medication({
             d_id: doctorId,
             p_id: patientId,
-            drug: req.body.drug,
-            dosage: req.body.dosage,
-            appointment: appointmentId, // Assign the selected appointment to the medication
+            medicationName: req.body.medicationName,
+            prescriptionDate: req.body.prescriptionDate,
+            dosageInstructions: req.body.dosageInstructions,
+            frequencyOfAdministration: req.body.frequencyOfAdministration,
+            medicationExpirationDate: req.body.medicationExpirationDate,
+            medicationStatus: req.body.medicationStatus,
+            appointment: appointmentId,
         });
-        const labResults = new LabResults({
+
+        const labResult = new LabResult({
             d_id: doctorId,
             p_id: patientId,
             test: req.body.test,
-            result: req.body.result,
+            testName: req.body.testName,
+            testResult: req.body.testResult,
             referenceRanges: req.body.referenceRanges,
-            facility: req.body.facility,
-            appointment: appointmentId, // Assign the selected appointment to the lab results
+            interpretationOrComments: req.body.interpretationOrComments,
+            labNameOrFacility: req.body.labNameOrFacility,
+            appointment: appointmentId,
         });
-        // Save all three data types to the database
-        await Promise.all([medicalHistory.save(), medication.save(), labResults.save()]);
-        // Retrieve the patient document and push the medical data into an array
-        const patient = await Patient.findById(patientId);
-        if (patient) {
-            patient.medicalHistory.push(medicalHistory);
-            patient.medications.push(medication);
-            patient.labResults.push(labResults);
-
-            // Save the updated patient document
-            await patient.save();
+        await Promise.all([medicalHistory.save(), medication.save(), labResult.save()]);
+        const existingAppointment = await Appointment.findById(appointmentId);
+        if (!existingAppointment) {
+            return res.status(404).json({ message: 'Appointment not found' });
         }
-        res.send("Data saved successfully"); // Send a response or redirect as needed
+
+        // Ensure that the arrays exist and initialize them as empty arrays
+        existingAppointment.medicalHistory = existingAppointment.medicalHistory || [];
+        existingAppointment.medications = existingAppointment.medications || [];
+        existingAppointment.labResult = existingAppointment.labResult || [];
+
+        // Push the medical data into the arrays
+        existingAppointment.medicalHistory.push(medicalHistory._id);
+        existingAppointment.medications.push(medication._id);
+        existingAppointment.labResult.push(labResult._id);
+        existingAppointment.diagnosed = true; // Set the diagnosed flag to true
+
+        // Save the updated appointment
+        await existingAppointment.save();
+        res.send("Data saved successfully");
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'An error occurred during data submission' });

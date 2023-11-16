@@ -1,0 +1,22 @@
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Patient Name</th>
+            <th>Diagnosis</th>
+            <th>Diagnosis Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% diagnosedPatients.forEach(appointment => { %>
+            <tr>
+                <td><%= appointment.p_id[0].Fname %> <%= appointment.p_id[0].Lname %></td>
+                <td><%= appointment.diagnose_condition %></td>  
+                <td><%= appointment.date %></td>
+                <td>
+                    <a href="/doctors/appointments/<%= appointment._id %>">View More</a>
+                </td>
+            </tr>
+        <% }); %>
+    </tbody>
+</table>

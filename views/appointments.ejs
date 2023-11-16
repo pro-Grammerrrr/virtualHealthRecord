@@ -1,21 +1,57 @@
-<% userAppointments.forEach(appointment => { %>
-    <div class="card">
-        <div class="card-body">
-            <!-- Loop through p_id array to access patient names -->
-            <% appointment.p_id.forEach(patient => { %>
-            <h5 class="card-title">Patient: <%= patient.Fname %> <%= patient.Lname %></h5>
-            <% }); %>
-            <!-- Loop through d_id array to access doctor names -->
-            <% appointment.d_id.forEach(doctor => { %>
-            <h6 class="card-subtitle mb-2 text-muted">Doctor: Dr.<%= doctor.fName %> <%= doctor.lName %></h6>
-            <% }); %>
-            <p class="card-text">Date: <%= appointment.date %></p>
-            <p class="card-text">Diagnosis: <%= appointment.diagnose_condition %></p>
-            <p class="card-text">Status: <%= appointment.apponitmentStatus %></p>
-        </div>
-    </div>
-    <% }); %>
-    
+<style>
+    .appointments-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .appointments-table th,
+    .appointments-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    .appointments-table th {
+        background-color: #f2f2f2;
+    }
+
+    .view-button {
+        text-decoration: none;
+        color: #007bff;
+        cursor: pointer;
+    }
+</style>
+<table class="appointments-table">
+    <thead>
+        <tr>
+            <th>Doctor</th>
+            <th>Date</th>
+            <th>Diagnosis</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% userAppointments.forEach(appointment => { %>
+            <tr>
+                <td>
+                    <% appointment.d_id.forEach(doctor => { %>
+                        Dr. <%= doctor.fName %> <%= doctor.lName %>
+                    <% }); %>
+                </td>
+                <td><%= appointment.date %></td>
+                <td><%= appointment.diagnose_condition %></td>
+                <td>
+                    <span class="badge <%= appointment.appointmentStatus %>">
+                        <%= appointment.appointmentStatus %>
+                    </span>
+                </td>
+                <td><a href="#" class="view-button" data-appointment-id="<%= appointment._id %>">View</a></td>
+            </tr>
+        <% }); %>
+    </tbody>
+</table>
 <!-- Button to trigger the modal -->
 <button class="btn btn-primary btn-fixed-bottom-right" data-toggle="modal" data-target="#appointmentModal">Add Appointment</button>
 
@@ -42,7 +78,6 @@
                         <label for="date">Date:</label>
                         <input type="date" id="date" name="date" class="form-control" required>
                     </div>
-            
                     <div class="form-group">
                         <label for="time">Time:</label>
                         <input type="time" id="time" name="time" class="form-control" required>
