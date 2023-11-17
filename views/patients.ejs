@@ -11,38 +11,27 @@
                   <ul class="nav flex-column" style="color:#ffffff !important;">
                       <li class="nav-item" style="color:#ffffff !important;">
                           <a class="nav-link d-flex align-items-center gap-2 active" aria-current="page" href="#home" data-bs-toggle="tab" role="tab">
-                              <svg class="bi"><use xlink:href="#house-fill"/></svg>
                               Dashboard
                           </a>
                       </li>
                       <li class="nav-item">
                           <a class="nav-link d-flex align-items-center gap-2" href="#appointments" data-bs-toggle="tab" role="tab">
-                              <svg class="bi"><use xlink:href="#file-earmark"/></svg>
                               Appointments
                           </a>
                       </li>
                       <li class="nav-item">
                           <a class="nav-link d-flex align-items-center gap-2" href="#medicalHistory" data-bs-toggle="tab" role="tab">
-                              <svg class="bi"><use xlink:href="#cart"/></svg>
                               Medical History
                           </a>
                       </li>
                       <li class="nav-item">
                           <a class="nav-link d-flex align-items-center gap-2" href="#medications" data-bs-toggle="tab" role="tab">
-                              <svg class="bi"><use xlink:href="#people"/></svg>
                               Medications
                           </a>
                       </li>
                       <li class="nav-item">
                           <a class="nav-link d-flex align-items-center gap-2" href="#lab-reports" data-bs-toggle="tab" role="tab">
-                              <svg class="bi"><use xlink:href="#graph-up"/></svg>
                               Lab Reports
-                          </a>
-                      </li>
-                      <li class="nav-item">
-                          <a class="nav-link d-flex align-items-center gap-2" href="#vitals" data-bs-toggle="tab" role="tab">
-                              <svg class="bi"><use xlink:href="#puzzle"/></svg>
-                              Vitals
                           </a>
                       </li>
                   </ul>
@@ -73,12 +62,8 @@
           <!-- Content for the Home tab -->
           <%- include('dashboard'); -%>
       </div>
-      <div class="tab-pane" id="appointments" role="tabpanel">
-
-          <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1>Appointments</h1>
-        </div>
-        <%- include('appointments'); -%>
+      <div  class="tab-pane p-5" id="appointments" role="tabpanel">
+            <%- include('appointments'); -%>
       </div>
       <div class="tab-pane" id="medicalHistory" role="tabpanel">
           <!-- Content for the Messages tab -->
@@ -90,9 +75,6 @@
       </div>
       <div class="tab-pane" id="lab-reports" role="tabpanel">
         <%- include('labReports'); -%>
-      </div>
-      <div class="tab-pane" id="vitals" role="tabpanel">
-          <!-- Content for the Vitals tab -->
       </div>
       <div class="tab-pane" id="settings" role="tabpanel">
           <!-- Content for the Settings tab -->

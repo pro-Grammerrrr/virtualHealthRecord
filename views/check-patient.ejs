@@ -1,153 +1,99 @@
 <div class="container mt-5">
     <h1 class="text-center">Entering Medical Data</h1>
-
-    <ul class="nav nav-tabs" id="myTabs">
-        <li class="nav-item">
-            <a class="nav-link active" id="history-tab" data-bs-toggle="tab" href="#history">Medical History</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="medication-tab" data-bs-toggle="tab" href="#medication">Medication</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="lab-tab" data-bs-toggle="tab" href="#lab">Lab Results</a>
-        </li>
-    </ul>
-
     <form action="/save-medical-data" method="post">
-        <div class="tab-content">
-<!-- Medical History Tab -->
-<div class="tab-pane fade show active" id="history">
-    <div class="mb-3">
-        <label for="condition" class="form-label">Condition Name or Diagnosis:</label>
-        <input type="text" class="form-control" name="condition" id="condition" required>
-    </div>
-    <div class="mb-3">
-        <label for="diagnosisDate" class="form-label">Date of Diagnosis:</label>
-        <input type="date" class="form-control" name="diagnosisDate" id="diagnosisDate" required>
-    </div>
-    <div class="mb-3">
-        <label for="stage" class="form-label">Severity or Stage of the Condition:</label>
-        <input type="text" class="form-control" name="stage" id="stage" required>
-    </div>
-    <div class="mb-3">
-        <label for="treatment" class="form-label">Treatment Plan or Recommendations:</label>
-        <input type="text" class="form-control" name="treatment" id="treatment" required>
-    </div>
-    <div class="mb-3">
-        <label for="notes" class="form-label">Notes (additional details about the condition):</label>
-        <textarea class="form-control" name="notes" id="notes" rows="4" required></textarea>
-    </div>
-</div>
-
-<!-- Medication Tab -->
-<div class="tab-pane fade" id="medication">
-    <div class="mb-3">
-        <label for="medicationName" class="form-label">Medication Name:</label>
-        <input type="text" class="form-control" name="medicationName" id="medicationName">
-    </div>
-    <div class="mb-3">
-        <label for="prescriptionDate" class="form-label">Prescription Date:</label>
-        <input type="date" class="form-control" name="prescriptionDate" id="prescriptionDate">
-    </div>
-    <div class="mb-3">
-        <label for="dosageInstructions" class="form-label">Dosage Instructions:</label>
-        <input type="text" class="form-control" name="dosageInstructions" id="dosageInstructions">
-    </div>
-    <div class="mb-3">
-        <label for="frequencyOfAdministration" class="form-label">Frequency of Administration:</label>
-        <input type="text" class="form-control" name="frequencyOfAdministration" id="frequencyOfAdministration">
-    </div>
-    <div class="mb-3">
-        <label for="medicationExpirationDate" class="form-label">Medication Expiration Date:</label>
-        <input type="date" class="form-control" name="medicationExpirationDate" id="medicationExpirationDate">
-    </div>
-    <div class="mb-3">
-        <label for="medicationStatus" class="form-label">Medication Status:</label>
-        <input type="text" class="form-control" name="medicationStatus" id="medicationStatus">
-    </div>
-</div>
-
-<!-- Lab Results Tab -->
-<div class="tab-pane fade" id="lab">
-    <div class="mb-3">
-        <label for="testName" class="form-label">Test Name or Type:</label>
-        <input type="text" class="form-control" name="testName" id="testName">
-    </div>
-    <div class="mb-3">
-        <label for="dateOfTest" class="form-label">Date of the Test:</label>
-        <input type="date" class="form-control" name="dateOfTest" id="dateOfTest">
-    </div>
-    <div class="mb-3">
-        <label for="testResult" class="form-label">Test Result:</label>
-        <input type="text" class="form-control" name="testResult" id="testResult">
-    </div>
-    <div class="mb-3">
-        <label for="referenceRanges" class="form-label">Reference Ranges:</label>
-        <input type="text" class="form-control" name="referenceRanges" id="referenceRanges">
-    </div>
-    <div class="mb-3">
-        <label for="interpretationOrComments" class="form-label">Interpretation or Comments:</label>
-        <input type="text" class="form-control" name="interpretationOrComments" id="interpretationOrComments">
-    </div>
-    <div class="mb-3">
-        <label for="labNameOrFacility" class="form-label">Lab Name or Facility:</label>
-        <input type="text" class="form-control" name="labNameOrFacility" id="labNameOrFacility">
-    </div>
-</div>
-
-            <div class="mb-3">
-                <button type="button" class="btn btn-secondary" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
-                <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextPrev(1)">Next</button>
+        <div class="row">
+            <div class="col-md-6">
+                <input type="hidden" name="patientId" value="<%= patientId %>">
+                <input type="hidden" name="doctorId" value="<%= doctorId %>">
+                <div class="mb-3">
+                    <label for="appointment" class="form-label">Select Appointment:</label>
+                    <select class="form-select" name="appointment" id="appointment">
+                        <% for (const appointment of appointments) { %>
+                            <option value="<%= appointment._id %>">
+                                <%= appointment.date %> - <%= appointment.time %>
+                            </option>
+                        <% } %>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="condition" class="form-label">Condition Name or Diagnosis:</label>
+                    <input type="text" class="form-control" name="condition" id="condition" required>
+                </div>
+                <div class="mb-3">
+                    <label for="diagnosisDate" class="form-label">Date of Diagnosis:</label>
+                    <input type="date" class="form-control" name="diagnosisDate" id="diagnosisDate" required>
+                </div>
+                <div class="mb-3">
+                    <label for="stage" class="form-label">Severity or Stage of the Condition:</label>
+                    <input type="text" class="form-control" name="stage" id="stage" required>
+                </div>
+                <div class="mb-3">
+                    <label for="treatment" class="form-label">Treatment Plan or Recommendations:</label>
+                    <input type="text" class="form-control" name="treatment" id="treatment" required>
+                </div>
             </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="notes" class="form-label">Notes (additional details about the condition):</label>
+                    <textarea class="form-control" name="notes" id="notes" rows="4" required></textarea>
+                </div>
+                <!-- Medication Fields -->
+                <h2 class="mt-4">Medication</h2>
+                <div class="mb-3">
+                    <label for="medicationName" class="form-label">Medication Name:</label>
+                    <input type="text" class="form-control" name="medicationName" id="medicationName">
+                </div>
+                <div class="mb-3">
+                    <label for="prescriptionDate" class="form-label">Prescription Date:</label>
+                    <input type="date" class="form-control" name="prescriptionDate" id="prescriptionDate">
+                </div>
+                <div class="mb-3">
+                    <label for="dosageInstructions" class="form-label">Dosage Instructions:</label>
+                    <input type="text" class="form-control" name="dosageInstructions" id="dosageInstructions">
+                </div>
+                <div class="mb-3">
+                    <label for="frequencyOfAdministration" class="form-label">Frequency of Administration:</label>
+                    <input type="text" class="form-control" name="frequencyOfAdministration" id="frequencyOfAdministration">
+                </div>
+                <div class="mb-3">
+                    <label for="medicationExpirationDate" class="form-label">Medication Expiration Date:</label>
+                    <input type="date" class="form-control" name="medicationExpirationDate" id="medicationExpirationDate">
+                </div>
+                <div class="mb-3">
+                    <label for="medicationStatus" class="form-label">Medication Status:</label>
+                    <input type="text" class="form-control" name="medicationStatus" id="medicationStatus">
+                </div>
+        </div>
+        <!-- Labs Fields -->
+<h2 class="mt-4">Laboratory Results</h2>
+<div class="mb-3">
+    <label for="testName" class="form-label">Test Name or Type:</label>
+    <input type="text" class="form-control" name="testName" id="testName">
+</div>
+<div class="mb-3">
+    <label for="dateOfTest" class="form-label">Date of the Test:</label>
+    <input type="date" class="form-control" name="dateOfTest" id="dateOfTest">
+</div>
+
+<div class="mb-3">
+    <label for="testResult" class="form-label">Test Result:</label>
+    <input type="text" class="form-control" name="testResult" id="testResult">
+</div>
+<div class="mb-3">
+    <label for="referenceRanges" class="form-label">Reference Ranges:</label>
+    <input type="text" class="form-control" name="referenceRanges" id="referenceRanges">
+</div>
+<div class="mb-3">
+    <label for="interpretationOrComments" class="form-label">Interpretation or Comments:</label>
+    <input type="text" class="form-control" name="interpretationOrComments" id="interpretationOrComments">
+</div>
+<div class="mb-3">
+    <label for="labNameOrFacility" class="form-label">Lab Name or Facility:</label>
+    <input type="text" class="form-control" name="labNameOrFacility" id="labNameOrFacility">
+</div>
+
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">Save Medical Data</button>
         </div>
     </form>
 </div>
-
-<script>
-    var currentTab = 0;
-
-    function showTab(n) {
-        var tabs = document.getElementsByClassName("tab-pane");
-        tabs[n].style.display = "block";
-
-        if (n === 0) {
-            document.getElementById("prevBtn").style.display = "none";
-        } else {
-            document.getElementById("prevBtn").style.display = "inline";
-        }
-
-        if (n === (tabs.length - 1)) {
-            document.getElementById("nextBtn").innerHTML = "Submit";
-        } else {
-            document.getElementById("nextBtn").innerHTML = "Next";
-        }
-    }
-
-    function nextPrev(n) {
-        var tabs = document.getElementsByClassName("tab-pane");
-
-        if (n === 1 && !validateForm()) {
-            return false;
-        }
-
-        tabs[currentTab].style.display = "none";
-        currentTab = currentTab + n;
-
-        if (currentTab >= tabs.length) {
-            // Submit the form or perform final actions
-            document.forms[0].submit();
-            return false;
-        }
-
-        showTab(currentTab);
-    }
-
-    function validateForm() {
-        // Add your form validation logic here
-        return true;
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-        showTab(currentTab);
-    });
-</script>

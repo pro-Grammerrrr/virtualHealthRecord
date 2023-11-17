@@ -1,0 +1,46 @@
+<style>
+    body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f0f0f0;
+    }
+
+    .confirmation-message {
+        text-align: center;
+        padding: 20px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .tick, .cross {
+        font-size: 50px;
+        margin-bottom: 20px;
+    }
+
+    .tick {
+        color: #00cc00;
+    }
+
+    .cross {
+        color: #ff3333;
+    }
+</style>
+</head>
+<body>
+<div class="confirmation-message">
+    <% if (status === 'Accepted' || status === 'Saved') { %>
+        <div class="tick">&#10004;</div>
+    <% } else if (status === 'Rejected') { %>
+        <div class="cross">&#10006;</div>
+    <% } else if (status === 'Submitted') { %>
+        <div class="custom-icon">&#10004;</div>
+    <% } %>
+    <h1><%= status %></h1>
+    <p><%= message %></p>
+</div>
+</body>
+</html>

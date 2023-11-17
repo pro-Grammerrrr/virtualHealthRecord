@@ -226,46 +226,6 @@ app.post('/login', (req, res, next) => {
         });
     })(req, res, next);
 });
-// Route for listing all patients
-app.route("/patients")
-    .get(function (req, res) {
-        // Patient.find({})
-        // .populate('_id')
-        // .exec()
-        //     .then(foundPatients => {
-        //         res.status(200).json(foundPatients);
-        //     })
-        //     .catch(err => {
-        //         console.error(err);
-        //         res.status(500).json({ error: "An error occurred while fetching patients" });
-        //     });
-        res.sendFile(__dirname + '/patients.html')
-    })
-    // Route for adding a new patient
-    .post((req, res) => {
-        const newPatient = new Patient(req.body);
-        newPatient
-            .save()
-            .then(savedDocument => {
-                res.status(201).json(savedDocument);
-            })
-            .catch(err => {
-                console.error(err);
-                res.status(500).json({ error: "Error saving patient" });
-            });
-    })
-    // Route to delete all patients
-    .delete((req, res) => {
-        Patient.deleteMany()
-            .then(result => {
-                res.status(204).send();
-            })
-            .catch(err => {
-                console.error(err);
-                res.status(500).json({ error: "Error deleting patients" });
-            });
-    });
-
 // Route for specific patient data
 app.route("/patients/:userId")
     .get(async (req, res) => {
@@ -340,19 +300,19 @@ app.route("/patients/:userId")
     });
 // Doctor Schema
 const doctorSchema = new mongoose.Schema({
-    fName: String, // First name
-    lName: String,  // Last nam
-    gender: String, // Gender
-    dateOfBirth: Date, // Date of Birth
-    email: String, // Email for communication
-    ph: Number, // Phone number (you can adjust the type as needed)
-    address: String, // Work address or office location
-    licenseNumber: String, // Medical license number (you can adjust the type as needed)
-    specality: String, // Medical specialty
-    qualifications: String, // Medical qualifications and certifications
-    experience: String, // Work experience including past positions and institutions
-    officeHours: String, // Regular office hours or availability
-    appointmentSlots: String, // List of available appointment slots for patients to schedule
+    fName: String,
+    lName: String,
+    gender: String,
+    dateOfBirth: Date,
+    email: String,
+    ph: Number,
+    address: String,
+    licenseNumber: String,
+    specality: String,
+    qualifications: String,
+    experience: String,
+    officeHours: String,
+    appointmentSlots: String, 
 
     patients: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Patient' }],
     appointments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }],
@@ -376,22 +336,19 @@ app.post('/doctor_registration', async (req, res) => {
         const newDoctor = new Doctor({
             // Doctor's data
             _id: req.session.userId, // Assuming this is the doctor's unique identifier
-            fName: req.body.firstName, // First name
-            lName: req.body.lastName, // Last name
-            gender: req.body.gender, // Gender
-            dateOfBirth: req.body.dateOfBirth, // Date of Birth
-            email: req.body.email, // Email for communication
-            ph: req.body.phoneNumber, // Phone number
-            address: req.body.address, // Work address or office location
-            licenseNumber: req.body.licenseNumber, // Medical license number
-            specality: req.body.specialty, // Medical specialty
-            qualifications: req.body.qualifications, // Medical qualifications and certifications
-            experience: req.body.experience, // Work experience including past positions and institutions
-            officeHours: req.body.officeHours, // Regular office hours or availability
-            appointmentSlots: req.body.appointmentSlots, // List of available appointment slots for patients to schedule
-        
-            // Additional fields can be added here
-        });
+            fName: req.body.firstName,
+            lName: req.body.lastName,
+            gender: req.body.gender,
+            dateOfBirth: req.body.dateOfBirth,
+            email: req.body.email,
+            ph: req.body.phoneNumber,
+            address: req.body.address,
+            licenseNumber: req.body.licenseNumber,
+            specality: req.body.specialty,
+            qualifications: req.body.qualifications,
+            experience: req.body.experience,
+            officeHours: req.body.officeHours,
+            appointmentSlots: req.body.appointmentSlots,});
 
         // Save the new patient record
         const savedDocument = await newDoctor.save();
@@ -480,25 +437,17 @@ app.route('/doctors/:userId')
             if (!doctor) {
                 return res.status(404).json({ message: 'Doctor not found' });
             }
-
             // Fetch the doctor's appointments
             const appointments = await Appointment.find({ d_id: doctor._id,diagnosed: false }).populate('p_id', 'Fname Lname').exec();
-
             // Fetch the list of all patients
             const patients = await Patient.find({});
-
-            // Customize the displayInfo property for each patient
             patients.forEach(patient => {
-                // Customize the displayInfo based on your requirements
                 patient.displayInfo = `Some custom information for ${patient.Fname} ${patient.Lname}`;
             });
-            // Fetch diagnosed patients using MedicalHistory
             // Fetch diagnosed patients using the Appointment model
             const diagnosedPatients = await Appointment.find({ d_id: doctor._id, diagnosed: true }).populate('p_id', 'Fname Lname').exec();
             // Customize the displayInfo property for each diagnosed patient
             diagnosedPatients.forEach(patient => {
-                // Customize the displayInfo based on your requirements
-                // Ensure 'p_id' is the correct reference to the 'Patient' model
                 patient.displayInfo = `Some custom information for ${patient.p_id.Fname} ${patient.p_id.Lname}`;
             });
 
@@ -556,7 +505,6 @@ app.route("/appointment")
             });
     })
     .post(function (req, res) {
-        // Create a new appointment
         const newAppointment = new Appointment(req.body);
         // Assign the current user's ID (patient ID) to the p_id field
         newAppointment.p_id = req.user.id;
@@ -570,7 +518,13 @@ app.route("/appointment")
                         // Update the doctor's appointment reference
                         Doctor.findByIdAndUpdate(req.body.d_id, { $push: { appointments: savedAppointment._id } })
                             .then(() => {
-                                res.status(200).json(savedAppointment);
+                                const confirmationData = {
+                                    status: 'Submited',
+                                    message: 'Your appointment has been Submited,wait for doctor to confirm it!'
+                                };
+                            
+                                // Render the confirmation page with dynamic values
+                                res.render('response', confirmationData);
                             })
                             .catch(err => {
                                 console.log(err);
@@ -631,10 +585,10 @@ const MedicalHistory = mongoose.model("MedicalHistory" , medicalHistorySchema);
 app.route("/medicalHstory")
     .get( (req , res)=>{
         MedicalHistory.find({})
-        .populate('p_id') // Populate the 'p_id' field, assuming it references the 'Patient' model
-        .populate('d_id') // Populate the 'd_id' field, assuming it references the 'Doctor' model
-        .populate('a_id') // Populate the 'd_id' field, assuming it references the 'Doctor' model
-        .exec() // Execute the query
+        .populate('p_id') 
+       .populate('d_id') 
+      .populate('a_id') 
+       .exec() // Execute the query
         .then(foundmedicalHistory => {
             res.status(200).json(foundmedicalHistory);
         })
@@ -683,9 +637,9 @@ const Medication = mongoose.model("Medication" , medicationSchema);
 app.route("/medications")
     .get((req,res)=>{
         Medication.find({})
-         .populate('p_id') // Populate the 'p_id' field, assuming it references the 'Patient' model
-        .populate('d_id') // Populate the 'd_id' field, assuming it references the 'Doctor' model
-        .populate('a_id') // Populate the 'd_id' field, assuming it references the 'Doctor' model
+         .populate('p_id') //
+        .populate('d_id') //
+        .populate('a_id') //
         .exec() // Execute the query
         .then(foundmedication => {
             res.status(200).json(foundmedication);
@@ -732,9 +686,9 @@ app.route("/medications")
 app.route("/labResults")
         .get((req ,res)=>{
             LabResults.find({})
-            .populate('p_id') // Populate the 'p_id' field, assuming it references the 'Patient' model
-            .populate('d_id') // Populate the 'd_id' field, assuming it references the 'Doctor' model
-            .populate('a_id') // Populate the 'd_id' field, assuming it references the 'Doctor' model
+            .populate('p_id') 
+            .populate('d_id')             
+            .populate('a_id')
             .exec() // Execute the query   
             .then(foundresults=>{
                 res.status(200).json(foundresults);
@@ -825,7 +779,12 @@ app.post('/appointments/accept/:id', async (req, res) => {
         // Push the patient's ID into the doctor's 'patients' array
         await Doctor.findByIdAndUpdate(appointment.d_id, { $push: { patients: appointment.p_id } });
         // Redirect to the appointment details page or any other appropriate page
-        res.redirect('/appointments/' + appointmentId);
+        const confirmationData = {
+            status: 'Accepted',
+            message: 'Your appointment has been scheduled. Thank you!'
+        };
+        res.render('response', confirmationData);           
+
     } catch (err) {
         res.status(500).json({ error: "An error occurred while accepting the appointment" });
     }
@@ -836,7 +795,13 @@ app.post('/appointments/reject/:id', async (req, res) => {
 
     try {
         await Appointment.findByIdAndUpdate(appointmentId, { appointmentStatus: 'cancelled', rejectReason: req.params.rejectReason });
-        res.redirect('/appointments/' + appointmentId);
+        const confirmationData = {
+            status: 'Rejected',
+            message: 'The appointment has been rejected succesfully!'
+        };
+        res.render('response', confirmationData);           
+    
+
     } catch (err) {
         res.status(500).json({ error: "An error occurred while rejecting the appointment" });
         console.log(err);
@@ -949,7 +914,11 @@ app.post('/save-medical-data', async (req, res) => {
         // Save the updated appointment
         await existingAppointment.save();
         await existingPatient.save();
-        res.send("Data saved successfully");
+        const confirmationData = {
+            status: 'Saved',
+            message: 'Data has been saved Sucessfully. Thank you!'
+        };
+        res.render('response', confirmationData);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'An error occurred during data submission' });

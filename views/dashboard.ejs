@@ -1,47 +1,76 @@
-<style>
-    .container {
-        margin-top: 20px;
-    }
-    body{
-        background-color: 	#D3D3D3;
-    }
-    .nameSection {
-        background-color: #f8f9fa;
-        border-radius: 20px;
-        padding: 20px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+WyqDLO6Eur+eaoZOo+C49T5L1XQibN9x" crossorigin="anonymous">
+    <style>
+        .container {
+            margin-top: 20px;
+        }
 
-    .vitals, .extra-div1, .extra-div2 {
-        margin-top: 20px;
-        padding: 10px;
-        background-color: #ffffff;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
+        body {
+            background-color: #D3D3D3;
+        }
 
+        .d-flex {
+            justify-content: space-between;
+            flex-wrap: wrap;
+            align-items: center;
+        }
 
+        h1 {
+            color: #007bff;
+        }
 
-    .info-container {
+        .lead {
+            margin-top: 10px;
+        }
+
+        .appointments-table,
+        .table-medication {
+            width: 100%;
+        }
+
+        /* Your existing styles here */
+
+        .container {
+            margin-top: 20px;
+        }
+
+        body {
+            background-color: #D3D3D3;
+        }
+
+        .nameSection {
+            background-color: #f8f9fa;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .vitals,
+        .extra-div1,
+        .extra-div2 {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-container {
             display: flex;
             justify-content: space-between;
-            margin: 20px; /* Add some margin for spacing */
+            margin: 20px;
         }
 
         .info-box {
             height: 200px;
-            width: 45%; /* Adjusted width for better responsiveness */
+            width: 45%;
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
             margin-bottom: 20px;
-        }
-
-        .appointments-box {
-            background-color: #FF6B6B;
-        }
-
-        .medications-box {
-            color: #ffffff;
         }
 
         h4 {
@@ -53,59 +82,67 @@
             padding: 0;
             margin: 0;
         }
-</style>
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+WyqDLO6Eur+eaoZOo+C49T5L1XQibN9x" crossorigin="anonymous">
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Dashboard</h1>
+        </div>
 
-<div style="padding: 20px;">
-  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-      <h1 class="h2">Dashboard</h1>
-      <div class="btn-toolbar mb-2 mb-md-0">
-          <div class="btn-group me-2">
-              <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-              <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
-          </div>
-          <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1">
-              <svg class="bi"><use xlink:href="#calendar3" /></svg>
-              This week
-          </button>
-      </div>
-  </div>
-  <div class="container">
-    <div class="nameSection">
-        <h4>Name: <%= patient.Fname %> <%= patient.Lname %> <br>
-        Age: <%= patient.age %><br>
-        Address: <%= patient.address %> <br>
-        Blood Group: <%= patient.bloodGroup %>
-        </h4>
-    </div>
-    <div class="vitals">
-        <h6 style="color: black;">Blood Pressure</h6>
-        <p style="color: black;"><%= patient.bp %> bp</p>
-    </div>
-    <div class="extra-div1">
-        <h6 style="color: black;">Height</h6>
-        <p style="color: black;"><%= patient.height %> cm</p>
-    </div>
-    <div class="extra-div2">
-        <h6 style="color: black;">Weight</h6>
-        <p style="color: black;"><%= patient.weight %> Kg</p>
-    </div>
-</div>
+        <div class="row">
+            <div class="col-md-6">
+                <h1>Welcome, <%= patient.Fname %> <%= patient.Lname %>!</h1>
+                <p class="lead">Here's your dashboard with important information and actions:</p>
+                <table class="appointments-table table table-striped table-hover table-bordered caption-top">
+                    <thead>
+                        <tr>
+                            <th>Doctor</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% userAppointments.slice(0, 4).filter(appointment => !appointment.diagnosed).forEach(appointment => { %>
+                            <tr>
+                                <td>
+                                    <% appointment.d_id.forEach(doctor => { %>
+                                        Dr. <%= doctor.fName %> <%= doctor.lName %>
+                                    <% }); %>
+                                </td>
+                                <td><%= appointment.date %></td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
 
-<!-- Bootstrap script reference -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  <div style="height: 200px; width: 500px; background-color: #FF6B6B;float: right; padding: 10px;border-radius: 10% 10% 10% 10%;box-shadow: gray;">
-      <h4>Appointments</h4>
-      <ul>
-          <!-- Appointments data will be dynamically generated here -->
+            <div class="col-md-6">
+                <div>
+                    <table class="table-medication table table-striped table-hover table-bordered caption-top">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Medication Name</th>
+                                <th scope="col">Medication Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% medications.slice(0, 4).forEach((medication, index) => { %>
+                                <tr>
+                                    <th scope="row"><%= index + 1 %></th>
+                                    <td><%= medication.medicationName %></td>
+                                    <td><%= medication.medicationStatus %></td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
-      </ul>
-  </div>
-  <div class="medications-box" style="height: 200px; width: 500px; background-color: #292F36;float: left; padding: 10px;">
-      <h4>Medications</h4>
-      <ul>
-          <!-- Medications data will be dynamically generated here -->
-      </ul>
-  </div>
-</div>
+    <!-- Bootstrap script reference -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
