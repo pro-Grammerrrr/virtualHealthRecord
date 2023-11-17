@@ -1,82 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f8f8f8;
+            color: #333;
+        }
 
-    <h1>Patient Medical Details</h1>
-    <table>
-        <tr>
-            <th>Name</th>
-            <td><%= patient.Fname %> <%= patient.Lname %></td>
-        </tr>
-        <tr>
-            <th>Date of Birth</th>
-            <td><%= patient.dateOfBirth %></td>
-        </tr>
-        <tr>
-            <th>Phone Number</th>
-            <td><%= patient.ph %></td>
-        </tr>
-        <tr>
-            <th>Age</th>
-            <td><%= patient.age %> years</td>
-        </tr>
-        <tr>
-            <th>Address</th>
-            <td><%= patient.address %></td>
-        </tr>
-        <tr>
-            <th>Gender</th>
-            <td><%= patient.gender %></td>
-        </tr>
-        <tr>
-            <th>Blood Group</th>
-            <td><%= patient.bloodGroup %></td>
-        </tr>
-        <tr>
-            <th>Country</th>
-            <td><%= patient.country %></td>
-        </tr>
-        <tr>
-            <th>State</th>
-            <td><%= patient.state %></td>
-        </tr>
-        <tr>
-            <th>Height</th>
-            <td><%= patient.height %> cm</td>
-        </tr>
-        <tr>
-            <th>Weight</th>
-            <td><%= patient.weight %> kg</td>
-        </tr>
-        <tr>
-            <th>Blood Pressure (BP)</th>
-            <td><%= patient.bp %> mmHg</td>
-        </tr>
-        <tr>
-            <th>Heart Rate</th>
-            <td><%= patient.heartRate %> bpm</td>
-        </tr>
-        <tr>
-            <th>Previous Medical Conditions</th>
-            <td>
-                <ul>
-                    <% patient.prevMedical.forEach(medical => { %>
-                        <li>
-                            <strong>Condition:</strong> <%= medical.condition %><br>
-                            <strong>Treatment:</strong> <%= medical.treatment %>
-                        </li>
-                    <% }); %>
-                </ul>
-            </td>
-        </tr>
-    </table>
+        h1, h2 {
+            color: #004080;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
+        }
+
+        p, li {
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        strong {
+            color: #333;
+            border-right: 1px solid #ddd;
+            padding-right: 8px;
+            display: inline-block;
+            font-weight: bold;
+            font-family: 'Roboto Slab', serif;
+        }
+
+        hr {
+            border: 0;
+            border-top: 2px solid #ddd;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-header {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .section-content {
+            border-top: 1px solid #ddd;
+        }
+
+        .section-content td {
+            border: none;
+            padding: 10px;
+        }
+    </style>
+    <title>Diagnosed Appointment Report</title>
+</head>
+
+<body>
+    <div style="max-width: 800px; margin: auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <h1 style="text-align: center;">PATIENT REPORT</h1>
+
+        <!-- Patients Section -->
+        <% if (patient) { %>
+            <table>
+                <tr class="section-header">
+                    <th colspan="2">Patient Information</th>
+                </tr>
+                <tr class="section-content">
+                    <td><strong>Name</strong></td>
+                    <td><%= patient.Fname %> <%= patient.Lname %></td>
+                </tr>
+                <tr class="section-content">
+                    <td><strong>Age</strong></td>
+                    <td><%= patient.age %></td>
+                </tr>
+                <tr class="section-content">
+                    <td><strong>Date of Birth</strong></td>
+                    <td><%= patient.dateOfBirth %></td>
+                </tr>
+                <tr class="section-content">
+                    <td><strong>Gender</strong></td>
+                    <td><%= patient.gender %></td>
+                </tr>
+                <tr class="section-content">
+                    <td><strong>Contact Number</strong></td>
+                    <td>+91 <%= patient.ph %></td>
+                </tr>
+                <tr class="section-content">
+                    <td><strong>Height and Weight</strong></td>
+                    <td><%= patient.height %>cm and <%= patient.weight %>kg</td>
+                </tr>
+                </tr>
+                <tr class="section-content">
+                    <td><strong>blood group and Blood preasure</strong></td>
+                    <td><%= patient.bloodGroup %> and <%= patient.bp %> spo</td>
+                </tr>
+            </table>
+        <% } else { %>
+            <p>No patient information available.</p>
+        <% } %>
+
+        <!-- Medical History Section -->
+        <% if (patient && patient.medicalHistory && patient.medicalHistory.length > 0) { %>
+            <table>
+                <tr class="section-header">
+                    <th>Consualted by</th>
+                    <th>Condition</th>
+                    <th>Stage</th>
+                    <th>Treatment</th>
+                    <th>Notes</th>
+                </tr>
+                <% patient.medicalHistory.forEach((history) => { %>
+                    <tr class="section-content">
+                        <td><%= history.d_id[0].fName %></td>
+                        <td><%= history.condition %></td>
+                        <td><%= history.stage %></td>
+                        <td><%= history.treatment %></td>
+                        <td><%= history.notes %></td>
+                    </tr>
+                <% }) %>
+            </table>
+        <% } else { %>
+            <p>No medical history available.</p>
+        <% } %>
+
+        <!-- Medications Section -->
+        <% if (patient && patient.medications && patient.medications.length > 0) { %>
+            <table>
+                <tr class="section-header">
+                    <th>Medication Name</th>
+                    <th>Prescription Date</th>
+                    <th>Dosage Instructions</th>
+                    <th>Frequency of Administration</th>
+                    <th>Expiration Date</th>
+                    <th>Status</th>
+                </tr>
+                <% patient.medications.forEach((medication) => { %>
+                    <tr class="section-content">
+                        <td><%= medication.medicationName %></td>
+                        <td><%= medication.prescriptionDate %></td>
+                        <td><%= medication.dosageInstructions %></td>
+                        <td><%= medication.frequencyOfAdministration %></td>
+                        <td><%= medication.medicationExpirationDate %></td>
+                        <td><%= medication.medicationStatus %></td>
+                    </tr>
+                <% }) %>
+            </table>
+        <% } else { %>
+            <p>No medications prescribed.</p>
+        <% } %>
+<!-- Lab Results Section -->
+        <% if (patient && patient.labResult && patient.labResult.length > 0) { %>
+            <table>
+                <tr class="section-header">
+                    <th>Test Name</th>
+                    <th>Test Result</th>
+                    <th>Reference Ranges</th>
+                    <th>Interpretation/Comments</th>
+                    <th>Lab/Facility</th>
+                </tr>
+                <% patient.labResult.forEach((lab) => { %>
+                    <tr class="section-content">
+                        <td><%= lab.testName %></td>
+                        <td><%= lab.testResult %></td>
+                        <td><%= lab.referenceRanges %></td>
+                        <td><%= lab.interpretationOrComments %></td>
+                        <td><%= lab.labNameOrFacility %></td>
+                    </tr>
+                <% }) %>
+            </table>
+        <% } else { %>
+            <p>No lab results available.</p>
+        <% } %>
+        <button id="goBackButton">Go Back</button>
+        <!-- Inside your patient details page -->
+        <a href="/medical-history-form?patientId=<%= patient.id%>">Check Patient</a>
+        
+        <P style="text-align: center; font-family: 'Times New Roman', Times, serif;">This is a Virtual Health Report</P>
+    </div>
     <!-- Include a button or link to go back to the list of patients or any other page as needed -->
-    <button id="goBackButton">Go Back</button>
-<!-- Inside your patient details page -->
-<a href="/medical-history-form?patientId=<%= patient.id%>">Check Patient</a>
-
-
     <script>
     function redirectToMedicalHistoryForm() {
       window.location.href = '/medical-history-form'; // Redirect to the medical history form route
     }
     </script>
 
+
+</body>
+</html>

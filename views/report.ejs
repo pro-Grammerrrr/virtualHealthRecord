@@ -1,52 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+
+        h1, h2 {
+            color: #004080;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+        }
+
+        p, li {
+            margin-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        strong {
+            color: #333;
+            border-right: 1px solid #ddd; /* Add border after data type */
+            padding-right: 8px; /* Add padding after data type */
+            display: inline-block; /* Display data type and data in the same line */
+            font-weight: bold;
+            font-family: 'Roboto Slab', serif;
+
+        }
+
+        hr {
+            border: 0;
+            border-top: 2px solid #ddd;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-header {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        .section-content {
+            border-top: 1px solid #ddd;
+        }
+
+        .section-content td {
+            border: none;
+            padding: 10px;
+        }
+    </style>
+    <title>Diagnosed Appointment Report</title>
+</head>
 <body>
-    <h1>Diagnosed Appointment Report</h1>
-    <h2>Appointment Details</h2>
-    <p><strong>Date:</strong> <%= appointment.date %></p>
-    <p><strong>Time:</strong> <%= appointment.time %></p>
-    <p><strong>Diagnosed Condition:</strong> <%= appointment.diagnose_condition %></p>
-    
-    <h2>Medical History</h2>
-    <% if (appointment.medicalHistory.length > 0) { %>
-        <ul>
-            <% appointment.medicalHistory.forEach((history) => { %>
-                <li><strong>Condition:</strong> <%= history.condition %></li>
-                <li><strong>Stage:</strong> <%= history.stage %></li>
-                <li><strong>Treatment:</strong> <%= history.treatment %></li>
-                <li><strong>Notes:</strong> <%= history.notes %></li>
-            <% }) %>
-        </ul>
-    <% } else { %>
-        <p>No medical history available.</p>
-    <% } %>
+    <div style="max-width: 800px; margin: auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <h1 style="text-align: center;  ">PATIENT REPORT</h1>
 
-    <h2>Medications</h2>
-    <% if (appointment.medications.length > 0) { %>
-        <ul>
-            <% appointment.medications.forEach((medication) => { %>
-                <li><strong>Medication Name:</strong> <%= medication.medicationName %></li>
-                <li><strong>Prescription Date:</strong> <%= medication.prescriptionDate %></li>
-                <li><strong>Dosage Instructions:</strong> <%= medication.dosageInstructions %></li>
-                <li><strong>Frequency of Administration:</strong> <%= medication.frequencyOfAdministration %></li>
-                <li><strong>Medication Expiration Date:</strong> <%= medication.medicationExpirationDate %></li>
-                <li><strong>Medication Status:</strong> <%= medication.medicationStatus %></li>
-            <% }) %>
-        </ul>
-    <% } else { %>
-        <p>No medications prescribed.</p>
-    <% } %>
+        <table>
+            <!-- Appointment Details Section -->
+            <tr class="section-header">
+                <th colspan="2">Appointment Details</th>
+            </tr>
+            <tr class="section-content">
+                <td><strong>Patients Name</strong></td>
+                <td><%= appointment.p_id[0].Fname %> <%= appointment.p_id[0].Lname %></td>
+            </tr>
+            </tr>
+            <tr class="section-content">
+                <td><strong>Consultaed by</strong></td>
+                <td>Dr.<%= appointment.d_id[0].fName %> <%= appointment.d_id[0].lName %></td>
+            </tr>
+            <tr class="section-content">
+                <td><strong>Date of Consultation</strong></td>
+                <td><%= appointment.date %></td>
+            </tr>
+            <tr class="section-content">
+                <td><strong>Time of Consultation</strong></td>
+                <td><%= appointment.time %></td>
+            </tr>
+            <tr class="section-content">
+                <td><strong>Diagnosed Condition</strong></td>
+                <td><%= appointment.diagnose_condition %></td>
+            </tr>
+            <!-- Patients Section -->
+            <tr class="section-header">
+                <th colspan="2">Patients information</th>
+            </tr>
+            <% if (appointment.p_id) { %>
+                <tr class="section-content">
+                    <td><strong>Name</strong></td>
+                    <td><%= appointment.p_id[0].Fname %> <%= appointment.p_id[0].Lname %></td>
+                </tr>
+                <tr class="section-content">
+                    <td><strong>Age</strong></td>
+                    <td><%= appointment.p_id[0].age %></td>
+                </tr>
+                <tr class="section-content">
+                    <td><strong>Date of Birth</strong></td>
+                    <td><%= appointment.p_id[0].dateOfBirth %></td>
+                </tr>
+                <tr class="section-content">
+                    <td><strong>Gender</strong></td>
+                    <td><%= appointment.p_id[0].gender %></td>
+                </tr>
+                <tr class="section-content">
+                    <td><strong>Contact Number</strong></td>
+                    <td>+91 <%= appointment.p_id[0].ph %></td>
+                </tr>
+                <!-- Add more patient details as needed -->
+            <% } else { %>
+                <tr class="section-content">
+                    <td colspan="2">No patient information available for this appointment.</td>
+                </tr>
+            <% } %>
+            <!-- Doctors Section -->
+            <tr class="section-header">
+                <th colspan="2">Doctors</th>
+            </tr>
+            <% if (appointment.d_id) { %>
+                <tr class="section-content">
+                    <td><strong>Doctors Name</strong></td>
+                    <td>Dr.<%= appointment.d_id[0].fName %> <%= appointment.d_id[0].lName %></td>
+                </tr>
+                <tr class="section-content">
+                    <td><strong>Email</strong></td>
+                    <td><%= appointment.d_id[0].email %></td>
+                </tr>
+                <tr class="section-content">
+                    <td><strong>Phone Number</strong></td>
+                    <td>+91 <%= appointment.d_id[0].ph %></td>
+                </tr>
+                <tr class="section-content">
+                    <td><strong>Address</strong></td>
+                    <td><%= appointment.d_id[0].address %></td>
+                </tr>
+                <tr class="section-content">
+                    <td><strong>Office Hours</strong></td>
+                    <td><%= appointment.d_id[0].officeHours %></td>
+                </tr>
+            <% } else { %>
+                <tr class="section-content">
+                    <td colspan="2">No doctor information available for this appointment.</td>
+                </tr>
+            <% } %>
 
-    <h2>Lab Results</h2>
-    <% if (appointment.labResult.length > 0) { %>
-        <ul>
-            <% appointment.labResult.forEach((lab) => { %>
-                <li><strong>Test Name:</strong> <%= lab.testName %></li>
-                <li><strong>Test Result:</strong> <%= lab.testResult %></li>
-                <li><strong>Reference Ranges:</strong> <%= lab.referenceRanges %></li>
-                <li><strong>Interpretation/Comments:</strong> <%= lab.interpretationOrComments %></li>
-                <li><strong>Lab/Facility:</strong> <%= lab.labNameOrFacility %></li>
-            <% }) %>
-        </ul>
-    <% } else { %>
-        <p>No lab results available.</p>
-    <% } %>
+            <!-- Medical History Section -->
+            <tr class="section-header">
+                <th colspan="2">Medical Treatment</th>
+            </tr>
+            <% if (appointment.medicalHistory.length > 0) { %>
+                <% appointment.medicalHistory.forEach((history) => { %>
+                    <tr class="section-content">
+                        <td><strong>Condition</strong></td>
+                        <td><%= history.condition %></td>
+                    </tr>
+                    <tr class="section-content">
+                        <td><strong>Stage</strong></td>
+                        <td><%= history.stage %></td>
+                    </tr>
+                    <tr class="section-content">
+                        <td><strong>Treatment</strong></td>
+                        <td><%= history.treatment %></td>
+                    </tr>
+                    <tr class="section-content">
+                        <td><strong>Notes</strong></td>
+                        <td><%= history.notes %></td>
+                    </tr>
+                <% }) %>
+            <% } else { %>
+                <tr class="section-content">
+                    <td colspan="2">No medical history available.</td>
+                </tr>
+            <% } %>
+            <!-- Medications Section -->
+            <tr class="section-header">
+                <th colspan="2">Medications</th>
+            </tr>
+            <% if (appointment.medications.length > 0) { %>
+                <% appointment.medications.forEach((medication) => { %>
+                    <tr class="section-content">
+                        <td><strong>Medication Name</strong></td>
+                        <td><%= medication.medicationName %></td>
+                    </tr>
+                    <tr class="section-content">
+                        <td><strong>Prescription Date</strong></td>
+                        <td><%= medication.prescriptionDate %></td>
+                    </tr>
+                    <tr class="section-content">
+                        <td><strong>Dosage Instructions</strong></td>
+                        <td><%= medication.dosageInstructions %></td>
+                    </tr>
+                    <tr class="section-content">
+                        <td><strong>Frequency of Administration</strong></td>
+                        <td><%= medication.frequencyOfAdministration %></td>
+                    </tr>
+                    <tr class="section-content">
+                        <td><strong>Medication Expiration Date</strong></td>
+                        <td><%= medication.medicationExpirationDate %></td>
+                    </tr>
+                    <tr class="section-content">
+                        <td><strong>Medication Status</strong></td>
+                        <td><%= medication.medicationStatus %></td>
+                    </tr>
+                <% }) %>
+            <% } else { %>
+                <tr class="section-content">
+                    <td colspan="2">No medications prescribed.</td>
+                </tr>
+            <% } %>
+            <!-- Lab Results Section -->
+            <tr class="section-header">
+                <th colspan="2">Lab Results</th>
+            </tr>
+            <% if (appointment.labResult.length > 0) { %>
+                <% appointment.labResult.forEach((lab) => { %>
+                    <tr class="section-content">
+                        <td><strong>Test Name</strong></td>
+                        <td><%= lab.testName %></td>
+                    </tr>
+                    <tr class="section-content">
+                        <td><strong>Test Result</strong></td>
+                        <td><%= lab.testResult %></td>
+                    </tr>
+                    <tr class="section-content">
+                        <td><strong>Reference Ranges</strong></td>
+                        <td><%= lab.referenceRanges %></td>
+                    </tr>
+                    <tr class="section-content">
+                        <td><strong>Interpretation/Comments</strong></td>
+                        <td><%= lab.interpretationOrComments %></td>
+                    </tr>
+                    <tr class="section-content">
+                        <td><strong>Lab/Facility</strong></td>
+                        <td><%= lab.labNameOrFacility %></td>
+                    </tr>
+                <% }) %>
+            <% } else { %>
+                <tr class="section-content">
+                    <td colspan="2">No lab results available.</td>
+                </tr>
+            <% } %>
+        </table>
+        <P style="text-align: center; font-family: 'Times New Roman', Times, serif;">This is an Virtual Health Report</P>
+    </div>
 </body>
+</html>

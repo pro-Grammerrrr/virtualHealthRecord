@@ -1,3 +1,61 @@
+<style>
+    .container {
+        margin-top: 20px;
+    }
+    body{
+        background-color: 	#D3D3D3;
+    }
+    .nameSection {
+        background-color: #f8f9fa;
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .vitals, .extra-div1, .extra-div2 {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #ffffff;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+
+
+    .info-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px; /* Add some margin for spacing */
+        }
+
+        .info-box {
+            height: 200px;
+            width: 45%; /* Adjusted width for better responsiveness */
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .appointments-box {
+            background-color: #FF6B6B;
+        }
+
+        .medications-box {
+            color: #ffffff;
+        }
+
+        h4 {
+            margin-bottom: 10px;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+</style>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8sh+WyqDLO6Eur+eaoZOo+C49T5L1XQibN9x" crossorigin="anonymous">
+
 <div style="padding: 20px;">
   <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
       <h1 class="h2">Dashboard</h1>
@@ -13,34 +71,38 @@
       </div>
   </div>
   <div class="container">
-      <div class="nameSection">
-          <h4>Name: <%= patient.Fname %> <%= patient.Lname %> <br>
-          Age: <%= patient.age %><br>
-          Address: <%= patient.address %> <br>
-          Blood Group: <%= patient.bloodGroup %>
-          </h4>
-      </div>
-      <div class="vitals">
-          <h6>Blood Pressure</h6>
-          <p><%= patient.bp %> bp</p>
-      </div>
-      <div class="extra-div1">
-          <h6>Height</h6>
-          <p><%= patient.height %> cm</p>
-      </div>
-      <div class="extra-div2">
-          <h6>Weight</h6>
-          <p><%= patient.weight %> Kg</p>
-      </div>
-  </div>
-  <div style="height: 200px; width: 500px; background-color: #FF6B6B;float: right; padding: 10px;">
+    <div class="nameSection">
+        <h4>Name: <%= patient.Fname %> <%= patient.Lname %> <br>
+        Age: <%= patient.age %><br>
+        Address: <%= patient.address %> <br>
+        Blood Group: <%= patient.bloodGroup %>
+        </h4>
+    </div>
+    <div class="vitals">
+        <h6 style="color: black;">Blood Pressure</h6>
+        <p style="color: black;"><%= patient.bp %> bp</p>
+    </div>
+    <div class="extra-div1">
+        <h6 style="color: black;">Height</h6>
+        <p style="color: black;"><%= patient.height %> cm</p>
+    </div>
+    <div class="extra-div2">
+        <h6 style="color: black;">Weight</h6>
+        <p style="color: black;"><%= patient.weight %> Kg</p>
+    </div>
+</div>
+
+<!-- Bootstrap script reference -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <div style="height: 200px; width: 500px; background-color: #FF6B6B;float: right; padding: 10px;border-radius: 10% 10% 10% 10%;box-shadow: gray;">
       <h4>Appointments</h4>
       <ul>
           <!-- Appointments data will be dynamically generated here -->
 
       </ul>
   </div>
-  <div style="height: 200px; width: 500px; background-color: #ffffff;float: left; padding: 10px;">
+  <div class="medications-box" style="height: 200px; width: 500px; background-color: #292F36;float: left; padding: 10px;">
       <h4>Medications</h4>
       <ul>
           <!-- Medications data will be dynamically generated here -->

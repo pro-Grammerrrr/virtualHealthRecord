@@ -22,6 +22,7 @@
         cursor: pointer;
     }
 </style>
+<h2>Upcoming Appointments</h2>
 <table class="appointments-table">
     <thead>
         <tr>
@@ -33,8 +34,9 @@
         </tr>
     </thead>
     <tbody>
-        <% userAppointments.forEach(appointment => { %>
+        <% userAppointments.filter(appointment => !appointment.diagnosed).forEach(appointment => { %>
             <tr>
+                <!-- Your existing appointment rendering logic -->
                 <td>
                     <% appointment.d_id.forEach(doctor => { %>
                         Dr. <%= doctor.fName %> <%= doctor.lName %>
@@ -52,6 +54,35 @@
         <% }); %>
     </tbody>
 </table>
+<hr>
+<!-- Completed Appointments -->
+<h2 style="text-align: center;">Completed Appointments</h2>
+<table class="appointments-table">
+    <thead>
+        <tr>
+            <th>Doctor</th>
+            <th>Date</th>
+            <th>Diagnosis</th>
+            <th>Report</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% userAppointments.filter(appointment => appointment.diagnosed).forEach(appointment => { %>
+            <tr>
+                <!-- Your existing appointment rendering logic -->
+                <td>
+                    <% appointment.d_id.forEach(doctor => { %>
+                        Dr. <%= doctor.fName %> <%= doctor.lName %>
+                    <% }); %>
+                </td>
+                <td><%= appointment.date %></td>
+                <td><%= appointment.diagnose_condition %></td>
+                <td><a href="#" class="view-button" data-appointment-id="<%= appointment._id %>">View</a></td>
+            </tr>
+        <% }); %>
+    </tbody>
+</table>
+
 <!-- Button to trigger the modal -->
 <button class="btn btn-primary btn-fixed-bottom-right" data-toggle="modal" data-target="#appointmentModal">Add Appointment</button>
 

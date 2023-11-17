@@ -137,26 +137,9 @@ const patientSchema = new mongoose.Schema({
         }
     ],
     appointments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }],
-    medicalHistory: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'MedicalHistory'
-        }
-    ],
-
-    medications: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Medication'
-        }
-    ],
-
-    labResults: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'LabResult'
-        }
-    ]
+    medicalHistory: [{ type: mongoose.Schema.Types.ObjectId, ref: 'MedicalHistory' }],
+    medications: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Medication' }],
+    labResult: [{ type: mongoose.Schema.Types.ObjectId, ref: 'LabResult' }],
 });
 const Patient = mongoose.model("Patient", patientSchema);
 // Registration Part where i save the users data and make an new Patient 
@@ -492,14 +475,14 @@ app.route('/doctors/:userId')
     .get(async (req, res) => {
         try {
             const uid = req.params.userId;
-
+            
             const doctor = await Doctor.findById(uid.slice(1));
             if (!doctor) {
                 return res.status(404).json({ message: 'Doctor not found' });
             }
 
             // Fetch the doctor's appointments
-            const appointments = await Appointment.find({ d_id: doctor._id }).populate('p_id', 'Fname Lname').exec();
+            const appointments = await Appointment.find({ d_id: doctor._id,diagnosed: false }).populate('p_id', 'Fname Lname').exec();
 
             // Fetch the list of all patients
             const patients = await Patient.find({});
@@ -547,6 +530,7 @@ const appointmentSchema = new mongoose.Schema({
     notes: String,
     diagnose_condition: String,
     appointmentStatus: String,
+    rejectReason: String,
     diagnosed: {
         type: Boolean,
         default: false,
@@ -556,7 +540,6 @@ const appointmentSchema = new mongoose.Schema({
     medications: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Medication' }],
     labResult: [{ type: mongoose.Schema.Types.ObjectId, ref: 'LabResult' }],
 });
-
 const Appointment = mongoose.model("Appointment", appointmentSchema);
 app.route("/appointment")
     .get(function (req, res) {
@@ -630,6 +613,7 @@ app.route("/appointments/:appointmentId")
                 res.status(500).json({ error: "An error occurred" });
             });
     });
+
 //------------->Medical History <-------------
 const medicalHistorySchema = new mongoose.Schema({
     condition_id : Number, 
@@ -787,11 +771,13 @@ app.get('/doctors/appointments/:appointmentId', async (req, res) => {
         const appointmentId = req.params.appointmentId;
         const appointment = await Appointment
         .findById(appointmentId)
-        .populate('p_id', 'Fname Lname')
+        .populate('p_id')
         .populate('d_id')
         .populate('medicalHistory') // Populate medical history data
         .populate('medications') // Populate medication data
+        .populate('labResult') // Populate lab data
         .exec();
+        const isDoctor = req.user && req.user._id.toString() === appointment.d_id[0]._id.toString();
         if (!appointment) {
             return res.status(404).json({ message: 'Appointment Not found' });
         }
@@ -802,6 +788,7 @@ app.get('/doctors/appointments/:appointmentId', async (req, res) => {
         } else {
             res.render('appointment-details', {
                 appointment: appointment,
+                isDoctor: isDoctor,
             });
         }
     } catch (err) {
@@ -828,20 +815,15 @@ app.post('/appointments/accept/:id', async (req, res) => {
 
     try {
         // Update the appointment's status to "Accepted" in your database
-        // Replace the following code with your actual database update logic
         await Appointment.findByIdAndUpdate(appointmentId, { appointmentStatus: 'confirmed' });
-
         // Retrieve the appointment data to get the patient's ID
         const appointment = await Appointment.findById(appointmentId);
-
         // Check if the appointment was found
         if (!appointment) {
             return res.status(404).json({ error: "Appointment not found" });
         }
-
         // Push the patient's ID into the doctor's 'patients' array
         await Doctor.findByIdAndUpdate(appointment.d_id, { $push: { patients: appointment.p_id } });
-
         // Redirect to the appointment details page or any other appropriate page
         res.redirect('/appointments/' + appointmentId);
     } catch (err) {
@@ -853,30 +835,28 @@ app.post('/appointments/reject/:id', async (req, res) => {
     const appointmentId = req.params.id;
 
     try {
-        // Update the appointment's status to "Rejected" in your database
-        // Replace the following code with your actual database update logic
-        await Appointment.findByIdAndUpdate(appointmentId, { appointmentStatus: 'cancelled' });
-        await Doctor.findByIdAndUpdate(req.params.userId < {})
-        // Redirect to the appointment details page or any other appropriate page
+        await Appointment.findByIdAndUpdate(appointmentId, { appointmentStatus: 'cancelled', rejectReason: req.params.rejectReason });
         res.redirect('/appointments/' + appointmentId);
     } catch (err) {
         res.status(500).json({ error: "An error occurred while rejecting the appointment" });
+        console.log(err);
     }
 });
+
 app.get('/doctors/patients/:patientId', async (req, res) => {
     try {
         const patientId = req.params.patientId;
-
         if (!mongoose.Types.ObjectId.isValid(patientId)) {
             return res.status(400).json({ message: 'Invalid patient ID' });
         }
-
-        const patient = await Patient.findById(patientId);
-
+        const patient = await Patient.findById(patientId)
+        .populate('medicalHistory')  // If needed, populate other fields as well
+        .populate('medications')
+        .populate('labResult');
+        console.log(patient);
         if (!patient) {
             return res.status(404).json({ message: 'Patient not found' });
         }
-
         // Render a page to view the patient's details
         res.render('view-patient-details', { patient: patient });
     } catch (err) {
@@ -890,7 +870,6 @@ app.get('/medical-history-form', async (req, res) => {
     try {
         // Fetch the appointments for the selected doctor and patient
         const appointments = await getAppointmentsForDoctorAndPatient(doctorId, patientId);
-        console.log(appointments);
         res.render('check-patient', {
             doctorId,
             patientId,
@@ -949,23 +928,27 @@ app.post('/save-medical-data', async (req, res) => {
         });
         await Promise.all([medicalHistory.save(), medication.save(), labResult.save()]);
         const existingAppointment = await Appointment.findById(appointmentId);
+        const existingPatient = await Patient.findById(patientId);
+        console.log("The existing patient which is found" + existingPatient);
         if (!existingAppointment) {
             return res.status(404).json({ message: 'Appointment not found' });
         }
-
         // Ensure that the arrays exist and initialize them as empty arrays
         existingAppointment.medicalHistory = existingAppointment.medicalHistory || [];
         existingAppointment.medications = existingAppointment.medications || [];
         existingAppointment.labResult = existingAppointment.labResult || [];
-
         // Push the medical data into the arrays
         existingAppointment.medicalHistory.push(medicalHistory._id);
         existingAppointment.medications.push(medication._id);
         existingAppointment.labResult.push(labResult._id);
         existingAppointment.diagnosed = true; // Set the diagnosed flag to true
+        existingPatient.medicalHistory.push(medicalHistory._id);
+        existingPatient.medications.push(medication._id);
+        existingPatient.labResult.push(labResult._id);
 
         // Save the updated appointment
         await existingAppointment.save();
+        await existingPatient.save();
         res.send("Data saved successfully");
     } catch (error) {
         console.error(error);
