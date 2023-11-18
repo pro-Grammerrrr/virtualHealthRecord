@@ -37,10 +37,13 @@
     <% } else if (status === 'Rejected') { %>
         <div class="cross">&#10006;</div>
     <% } else if (status === 'Submitted') { %>
-        <div class="custom-icon">&#10004;</div>
+        <div class="custom-icon">
+            <i class="fa-solid fa-clock fa-spin fa-lg" style="color: #f5f91a;"></i>
+        </div>
     <% } %>
     <h1><%= status %></h1>
     <p><%= message %></p>
 </div>
+<script src="https://kit.fontawesome.com/0091da8801.js" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -319,7 +319,6 @@ const doctorSchema = new mongoose.Schema({
     patients: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Patient' }],
     appointments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }],
 
-    // Add more fields as needed
 });
 const Doctor = mongoose.model("Doctor", doctorSchema);
 app.post('/doctor_registration', async (req, res) => {
@@ -406,7 +405,7 @@ app.post('/docLogin', (req, res, next) => {
             return res.redirect('/docSignUp.html'); // Redirect to the login page
         }
         if (!user) {
-            console.log('Login failed:', info && info.message); // Check if info exists
+            console.log('Login failed:', info && info.message); 
             return res.redirect('/docSignUp.html'); // Redirect to the login page
         }
 
@@ -442,17 +441,15 @@ app.route('/doctors/:userId')
             // Fetch the doctor's appointments
             const appointments = await Appointment.find({ d_id: doctor._id,diagnosed: false }).populate('p_id', 'Fname Lname').exec();
             // Fetch the list of all patients
-            const patients = await doctor.patients.map(patient => {
-                patient.displayInfo = `Some custom information for ${patient.Fname} ${patient.Lname}`;
-                return patient;
-            });
+            const patients = doctor.patients
+    .filter(patient => patient.diagnosed === 'false') // Filter out patients with diagnosed set to 'false'
+    .map(patient => {
+        patient.displayInfo = `Some custom information for ${patient.Fname} ${patient.Lname}`;
+        return patient;
+    });        
             // Fetch diagnosed patients using the Appointment model
             const diagnosedPatients = await Appointment.find({ d_id: doctor._id, diagnosed: true }).populate('p_id', 'Fname Lname').exec();
             // Customize the displayInfo property for each diagnosed patient
-            diagnosedPatients.forEach(patient => {
-                patient.displayInfo = `Some custom information for ${patient.p_id.Fname} ${patient.p_id.Lname}`;
-            });
-
             // Render the doctor's dashboard with appointments, all patients, and diagnosed patients
             res.render('doctors', {
                 doctor: doctor,
@@ -733,6 +730,7 @@ app.get('/doctors/appointments/:appointmentId', async (req, res) => {
         .populate('medications') // Populate medication data
         .populate('labResult') // Populate lab data
         .exec();
+        console.log(appointment);
         const isDoctor = req.user && req.user._id.toString() === appointment.d_id[0]._id.toString();
         if (!appointment) {
             return res.status(404).json({ message: 'Appointment Not found' });
@@ -778,8 +776,8 @@ app.post('/appointments/accept/:id', async (req, res) => {
         if (!appointment) {
             return res.status(404).json({ error: "Appointment not found" });
         }
-        // Push the patient's ID into the doctor's 'patients' array
-        await Doctor.findByIdAndUpdate(appointment.d_id, { $push: { patients: appointment.p_id } });
+        // Push the patient's ID into the doctor's 'patients' array"
+         await Doctor.findByIdAndUpdate(appointment.d_id, { $addToSet: { patients: appointment.p_id } });
         // Redirect to the appointment details page or any other appropriate page
         const confirmationData = {
             status: 'Accepted',
@@ -796,14 +794,12 @@ app.post('/appointments/reject/:id', async (req, res) => {
     const appointmentId = req.params.id;
 
     try {
-        await Appointment.findByIdAndUpdate(appointmentId, { appointmentStatus: 'cancelled', rejectReason: req.params.rejectReason });
+        await Appointment.findByIdAndUpdate(appointmentId, { appointmentStatus: 'cancelled', rejectReason: req.body.rejectReason });
         const confirmationData = {
             status: 'Rejected',
             message: 'The appointment has been rejected succesfully!'
         };
         res.render('response', confirmationData);           
-    
-
     } catch (err) {
         res.status(500).json({ error: "An error occurred while rejecting the appointment" });
         console.log(err);
