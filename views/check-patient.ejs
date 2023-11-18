@@ -1,99 +1,493 @@
-<div class="container mt-5">
-    <h1 class="text-center">Entering Medical Data</h1>
-    <form action="/save-medical-data" method="post">
-        <div class="row">
-            <div class="col-md-6">
+<html lang="en" dir="ltr">
+   <head>
+      <meta charset="utf-8">
+      <title>Medical Form</title>
+      <link rel="stylesheet" href="style.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+   </head>
+   <style>
+    @import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      outline: none;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-image: linear-gradient(270deg, #08AEEA 0%, #2AF598 100%);
+    }
+
+    ::selection {
+      color: #fff;
+      background: #00C9A7;
+    }
+
+    .container {
+      width: 500px;
+      height: 700px;
+    margin: 30px;
+      background: #12192c;
+      color: #fff;
+      text-align: left;
+      border-radius: 5px;
+      padding: 30px 35px 10px 35px;
+    }
+
+    .container header {
+      font-size: 35px;
+      font-weight: 600;
+    }
+
+    .container .form-outer {
+      width: 100%;
+      overflow: hidden;
+    }
+
+    .container .form-outer form {
+      display: flex;
+      width: 400%;
+    }
+
+    .form-outer form .page {
+      width: 25%;
+      transition: margin-left 0.3s ease-in-out;
+    }
+
+    .form-outer form .page .title {
+      text-align: left;
+      font-size: 25px;
+      font-weight: 500;
+    }
+
+    .form-outer form .page .field {
+      width: 330px;
+      height: 35px;
+      margin: 45px 0;
+      display: flex;
+      position: relative;
+    }
+
+    form .page .field .label {
+      position: absolute;
+      top: -30px;
+      font-weight: 500;
+    }
+
+    .more1 {
+      padding-right: 250px;
+    }
+
+    form .page .field input {
+      height: 100%;
+      width: 100%;
+      border: 5px solid #eee;
+      border-radius: 5px;
+      padding-left: 15px;
+      font-size: 18px;
+    }
+
+   textarea, input {
+      height: 8%;
+      width: 80%;
+      border: 5px solid #eee;
+      border-radius: 5px;
+      padding-left: 15px;
+      font-size: 18px;
+    }
+    
+
+    form input:focus,
+    form .field.valid input {
+      border-color: #00C9A7;
+    }
+
+    form .page .field select {
+      width: 100%;
+      padding-left: 10px;
+      font-size: 17px;
+      font-weight: 500;
+    }
+
+    form .page .field button {
+      width: 100%;
+      height: calc(100% + 5px);
+      border: none;
+      background: #00C9A7;
+      border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: 0.5s ease;
+    }
+
+    form .page .field button:hover {
+      background: #22E4AC;
+    }
+
+    form .page .btns button.prev {
+      margin-right: 3px;
+      font-size: 17px;
+    }
+
+    form .page .btns button.next {
+      margin-left: 3px;
+    }
+
+    .container .progress-bar {
+      display: flex;
+      margin: 25px 0;
+      user-select: none;
+    }
+
+    .container .progress-bar .step {
+      text-align: center;
+      width: 100%;
+      position: relative;
+    }
+
+    .container .progress-bar .step p {
+      font-weight: 500;
+      font-size: 18px;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .progress-bar .step .bullet {
+      height: 25px;
+      width: 25px;
+      border: 2px solid #fff;
+      display: inline-block;
+      border-radius: 50%;
+      position: relative;
+      transition: 0.2s;
+      font-weight: 500;
+      font-size: 17px;
+      line-height: 25px;
+    }
+
+    .progress-bar .step .bullet.active {
+      border-color: #12192c;
+      background: #00C9A7;
+    }
+
+    .progress-bar .step .bullet span {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .progress-bar .step .bullet.active span {
+      display: none;
+    }
+
+    .progress-bar .step .bullet:before,
+    .progress-bar .step .bullet:after {
+      position: absolute;
+      content: '';
+      bottom: 11px;
+      right: -51px;
+      height: 3px;
+      width: 44px;
+      /*background: #262626;*/
+    }
+
+    .progress-bar .step .bullet.active:after {
+      background: #00C9A7;
+      transform: scaleX(0);
+      transform-origin: left;
+      animation: animate 0.3s linear forwards;
+    }
+
+    @keyframes animate {
+      100% {
+        transform: scaleX(1);
+      }
+    }
+
+    .progress-bar .step:last-child .bullet:before,
+    .progress-bar .step:last-child .bullet:after {
+      display: none;
+    }
+
+    .progress-bar .step p.active {
+      color: #00C9A7;
+      transition: 0.2s linear;
+    }
+
+    .progress-bar .step .check {
+      position: absolute;
+      left: 50%;
+      top: 70%;
+      font-size: 15px;
+      transform: translate(-50%, -50%);
+      display: none;
+    }
+
+    .progress-bar .step .check.active {
+      display: block;
+      color: #fff;
+    }
+
+    .credit {
+      text-align: center;
+      color: #fff;
+      font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    }
+    .credit a {
+      text-decoration: none;
+      color: #00C9A7;
+      font-weight: bold;
+    }
+  </style>
+   <body>
+      <div class="container">
+         <header style="text-align: center;">Medical Entry</header>
+         <div class="progress-bar">
+            <div class="step">
+               <p>
+                  DIGNOSIS
+               </p>
+               <div class="bullet">
+                  <span>1</span>
+               </div>
+               <div class="check fas fa-check"></div>
+            </div>
+            <div class="step">
+               <p>
+                  MEDICATIONS
+               </p>
+               <div class="bullet">
+                  <span>2</span>
+               </div>
+               <div class="check fas fa-check"></div>
+            </div>
+            <div class="step">
+               <p>
+                  LAB RESULTS
+               </p>
+               <div class="bullet">
+                  <span>3</span>
+               </div>
+               <div class="check fas fa-check"></div>
+            </div>
+            <div class="step">
+               <p>
+                  Submit
+               </p>
+               <div class="bullet">
+                  <span>4</span>
+               </div>
+               <div class="check fas fa-check"></div>
+            </div>
+         </div>
+         <div class="form-outer">
+            <form action="/save-medical-data" method="post">
+              <div class="page slide-page">
                 <input type="hidden" name="patientId" value="<%= patientId %>">
                 <input type="hidden" name="doctorId" value="<%= doctorId %>">
                 <div class="mb-3">
-                    <label for="appointment" class="form-label">Select Appointment:</label>
-                    <select class="form-select" name="appointment" id="appointment">
-                        <% for (const appointment of appointments) { %>
-                            <option value="<%= appointment._id %>">
-                                <%= appointment.date %> - <%= appointment.time %>
-                            </option>
-                        <% } %>
-                    </select>
+                  <label for="appointment" class="form-label">Select Appointment:</label>
+                  <select class="form-select" name="appointment" id="appointment">
+                    <% for (const appointment of appointments) { %>
+                    <option value="<%= appointment._id %>">
+                      <%= appointment.date %> - <%= appointment.time %>
+                    </option>
+                    <% } %>
+                  </select>
                 </div>
                 <div class="mb-3">
-                    <label for="condition" class="form-label">Condition Name or Diagnosis:</label>
-                    <input type="text" class="form-control" name="condition" id="condition" required>
+                  <label for="condition" class="form-label">Condition Name or Diagnosis:</label>
+                  <input type="text" class="form-control" name="condition" id="condition" required>
                 </div>
                 <div class="mb-3">
-                    <label for="diagnosisDate" class="form-label">Date of Diagnosis:</label>
-                    <input type="date" class="form-control" name="diagnosisDate" id="diagnosisDate" required>
+                  <label for="diagnosisDate" class="form-label">Date of Diagnosis:</label>
+                  <input type="date" class="form-control" name="diagnosisDate" id="diagnosisDate" required>
                 </div>
                 <div class="mb-3">
-                    <label for="stage" class="form-label">Severity or Stage of the Condition:</label>
-                    <input type="text" class="form-control" name="stage" id="stage" required>
+                  <label for="stage" class="form-label">Severity or Stage of the Condition:</label>
+                  <input type="text" class="form-control" name="stage" id="stage" required>
                 </div>
                 <div class="mb-3">
-                    <label for="treatment" class="form-label">Treatment Plan or Recommendations:</label>
-                    <input type="text" class="form-control" name="treatment" id="treatment" required>
+                  <label for="treatment" class="form-label">Treatment Plan or Recommendations:</label>
+                  <input type="text" class="form-control" name="treatment" id="treatment" required>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div class="mb-3">
+                <div class="col-md-6">
+                  <div class="mb-3">
                     <label for="notes" class="form-label">Notes (additional details about the condition):</label>
                     <textarea class="form-control" name="notes" id="notes" rows="4" required></textarea>
+                  </div>
                 </div>
-                <!-- Medication Fields -->
+                <div class="field">
+                  <button class="firstNext next">Next</button>
+                </div>
+              </div>
+      
+              <div class="page">
                 <h2 class="mt-4">Medication</h2>
                 <div class="mb-3">
-                    <label for="medicationName" class="form-label">Medication Name:</label>
-                    <input type="text" class="form-control" name="medicationName" id="medicationName">
+                  <label for="medicationName" class="form-label">Medication Name:</label>
+                  <input type="text" class="form-control" name="medicationName" id="medicationName">
                 </div>
                 <div class="mb-3">
-                    <label for="prescriptionDate" class="form-label">Prescription Date:</label>
-                    <input type="date" class="form-control" name="prescriptionDate" id="prescriptionDate">
+                  <label for="prescriptionDate" class="form-label">Prescription Date:</label>
+                  <input type="date" class="form-control" name="prescriptionDate" id="prescriptionDate">
                 </div>
                 <div class="mb-3">
-                    <label for="dosageInstructions" class="form-label">Dosage Instructions:</label>
-                    <input type="text" class="form-control" name="dosageInstructions" id="dosageInstructions">
+                  <label for="dosageInstructions" class="form-label">Dosage Instructions:</label>
+                  <input type="text" class="form-control" name="dosageInstructions" id="dosageInstructions">
                 </div>
                 <div class="mb-3">
-                    <label for="frequencyOfAdministration" class="form-label">Frequency of Administration:</label>
-                    <input type="text" class="form-control" name="frequencyOfAdministration" id="frequencyOfAdministration">
+                  <label for="frequencyOfAdministration" class="form-label">Frequency of Administration:</label>
+                  <input type="text" class="form-control" name="frequencyOfAdministration" id="frequencyOfAdministration">
                 </div>
                 <div class="mb-3">
-                    <label for="medicationExpirationDate" class="form-label">Medication Expiration Date:</label>
-                    <input type="date" class="form-control" name="medicationExpirationDate" id="medicationExpirationDate">
+                  <label for="medicationExpirationDate" class="form-label">Medication Expiration Date:</label>
+                  <input type="date" class="form-control" name="medicationExpirationDate" id="medicationExpirationDate">
                 </div>
                 <div class="mb-3">
-                    <label for="medicationStatus" class="form-label">Medication Status:</label>
-                    <input type="text" class="form-control" name="medicationStatus" id="medicationStatus">
+                  <label for="medicationStatus" class="form-label">Medication Status:</label>
+                  <input type="text" class="form-control" name="medicationStatus" id="medicationStatus">
                 </div>
-        </div>
-        <!-- Labs Fields -->
-<h2 class="mt-4">Laboratory Results</h2>
-<div class="mb-3">
-    <label for="testName" class="form-label">Test Name or Type:</label>
-    <input type="text" class="form-control" name="testName" id="testName">
-</div>
-<div class="mb-3">
-    <label for="dateOfTest" class="form-label">Date of the Test:</label>
-    <input type="date" class="form-control" name="dateOfTest" id="dateOfTest">
-</div>
+                <div class="field btns">
+                  <button class="prev-1 prev">Previous</button>
+                  <button class="next-1 next">Next</button>
+                </div>
+              </div>
+      
+              <div class="page">
+                <h2 class="mt-4">Laboratory Results</h2>
+                <div class="mb-3">
+                  <label for="testName" class="form-label">Test Name or Type:</label>
+                  <input type="text" class="form-control" name="testName" id="testName">
+                </div>
+                <div class="mb-3">
+                  <label for="dateOfTest" class="form-label">Date of the Test:</label>
+                  <input type="date" class="form-control" name="dateOfTest" id="dateOfTest">
+                </div>
+                <div class="mb-3 p-3">
+                  <label for="testResult" class="form-label">Test Result:</label><br>
+                  <input type="text" class="form-control" name="testResult" id="testResult">
+                </div>
+                <div class="mb-3">
+                  <label for="referenceRanges" class="form-label">Reference Ranges:</label>
+                  <input type="text" class="form-control" name="referenceRanges" id="referenceRanges">
+                </div>
+                <div class="mb-3">
+                  <label for="interpretationOrComments" class="form-label">Interpretation or Comments:</label>
+                  <input type="text" class="form-control" name="interpretationOrComments" id="interpretationOrComments">
+                </div>
+                <div class="mb-3">
+                  <label for="labNameOrFacility" class="form-label">Lab Name or Facility:</label>
+                  <input type="text" class="form-control" name="labNameOrFacility" id="labNameOrFacility">
+                </div>
+                <div class="field btns">
+                  <button class="prev-2 prev">Previous</button>
+                  <button class="next-2 next">Next</button>
+                </div>
+              </div>
+      
+              <div class="page">
+                <div class="title">Login Details :</div>
+                <div class="field">
+                  <div class="label">Username</div>
+                  <input type="text">
+                </div>
+                <div class="field">
+                  <div class="label">Password</div>
+                  <input type="password">
+                </div>
+                <div class="field btns">
+                  <button class="prev-3 prev">Previous</button>
+                  <button type="submit" class="btn btn-primary">Save Medical Data</button>
+                </div>
+              </div>
+            </form>
+          </div>     
+      <script>
 
-<div class="mb-3">
-    <label for="testResult" class="form-label">Test Result:</label>
-    <input type="text" class="form-control" name="testResult" id="testResult">
-</div>
-<div class="mb-3">
-    <label for="referenceRanges" class="form-label">Reference Ranges:</label>
-    <input type="text" class="form-control" name="referenceRanges" id="referenceRanges">
-</div>
-<div class="mb-3">
-    <label for="interpretationOrComments" class="form-label">Interpretation or Comments:</label>
-    <input type="text" class="form-control" name="interpretationOrComments" id="interpretationOrComments">
-</div>
-<div class="mb-3">
-    <label for="labNameOrFacility" class="form-label">Lab Name or Facility:</label>
-    <input type="text" class="form-control" name="labNameOrFacility" id="labNameOrFacility">
-</div>
+const slidePage = document.querySelector(".slide-page");
+const nextBtnFirst = document.querySelector(".firstNext");
+const prevBtnSec = document.querySelector(".prev-1");
+const nextBtnSec = document.querySelector(".next-1");
+const prevBtnThird = document.querySelector(".prev-2");
+const nextBtnThird = document.querySelector(".next-2");
+const prevBtnFourth = document.querySelector(".prev-3");
+const submitBtn = document.querySelector(".submit");
+const progressText = document.querySelectorAll(".step p");
+const progressCheck = document.querySelectorAll(".step .check");
+const bullet = document.querySelectorAll(".step .bullet");
+let current = 1;
 
-        <div class="mb-3">
-            <button type="submit" class="btn btn-primary">Save Medical Data</button>
-        </div>
-    </form>
-</div>
+nextBtnFirst.addEventListener("click", function(event){
+  event.preventDefault();
+  slidePage.style.marginLeft = "-25%";
+  bullet[current - 1].classList.add("active");
+  progressCheck[current - 1].classList.add("active");
+  progressText[current - 1].classList.add("active");
+  current += 1;
+});
+nextBtnSec.addEventListener("click", function(event){
+  event.preventDefault();
+  slidePage.style.marginLeft = "-50%";
+  bullet[current - 1].classList.add("active");
+  progressCheck[current - 1].classList.add("active");
+  progressText[current - 1].classList.add("active");
+  current += 1;
+});
+nextBtnThird.addEventListener("click", function(event){
+  event.preventDefault();
+  slidePage.style.marginLeft = "-75%";
+  bullet[current - 1].classList.add("active");
+  progressCheck[current - 1].classList.add("active");
+  progressText[current - 1].classList.add("active");
+  current += 1;
+});
+submitBtn.addEventListener("click", function(){
+  bullet[current - 1].classList.add("active");
+  progressCheck[current - 1].classList.add("active");
+  progressText[current - 1].classList.add("active");
+  current += 1;
+  setTimeout(function(){
+    alert("Your Form Successfully Signed up");
+    location.reload();
+  },800);
+});
+
+prevBtnSec.addEventListener("click", function(event){
+  event.preventDefault();
+  slidePage.style.marginLeft = "0%";
+  bullet[current - 2].classList.remove("active");
+  progressCheck[current - 2].classList.remove("active");
+  progressText[current - 2].classList.remove("active");
+  current -= 1;
+});
+prevBtnThird.addEventListener("click", function(event){
+  event.preventDefault();
+  slidePage.style.marginLeft = "-25%";
+  bullet[current - 2].classList.remove("active");
+  progressCheck[current - 2].classList.remove("active");
+  progressText[current - 2].classList.remove("active");
+  current -= 1;
+});
+prevBtnFourth.addEventListener("click", function(event){
+  event.preventDefault();
+  slidePage.style.marginLeft = "-50%";
+  bullet[current - 2].classList.remove("active");
+  progressCheck[current - 2].classList.remove("active");
+  progressText[current - 2].classList.remove("active");
+  current -= 1;
+});
+
+
+      </script>
+   </body>
+</html>

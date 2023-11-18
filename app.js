@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require('mongoose');
@@ -14,15 +15,13 @@ const ejs = require('ejs');
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
-mongoose.connect('mongodb://127.0.0.1:27017/vhr', { useNewUrlParser: true, useUnifiedTopology: true });
-app.use(session({ secret: "5DED5486FFDE459BC62C69A879C93", resave: true, saveUninitialized: true }));
-app.use(flash()); // Initialize connect-flash
-// Passport configuration
-app.use(session({ secret: "5DED5486FFDE459BC62C69A879C93", resave: true, saveUninitialized: true }));
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+app.use(session({ secret: process.env.SECRET_KEY, resave: true, saveUninitialized: true }));
+app.use(flash()); 
 app.use(passport.initialize());
 app.use(passport.session());
 passport.serializeUser(function(user, done) {
-    done(null, user.id); // Serialize the user by their ID
+    done(null, user.id); 
 });
 passport.deserializeUser(async function(id, done) {
     try {
@@ -238,6 +237,8 @@ app.route("/patients/:userId")
             const medicalHistoryEntries = await MedicalHistory.find({ p_id: patient._id })
             .populate('d_id', 'fName lName')
             .exec();
+            const doctors = await Doctor.find({}, 'fName lName');
+            console.log(doctors);
             const medications = await Medication.find({ p_id: patient._id });
             const labResult = await LabResult.find({ p_id: patient._id });
             // Fetch userAppointments within the same route handler
@@ -248,6 +249,7 @@ app.route("/patients/:userId")
                 .exec();
             // Render the patient dashboard with all the data, including userAppointments
             res.render('patients', {
+                doctors: doctors,
                 patient: patient,
                 medicalHistoryEntries: medicalHistoryEntries,
                 medications: medications,
@@ -433,16 +435,16 @@ app.route('/doctors/:userId')
         try {
             const uid = req.params.userId;
             
-            const doctor = await Doctor.findById(uid.slice(1));
+            const doctor = await Doctor.findById(uid.slice(1)).populate('patients');
             if (!doctor) {
                 return res.status(404).json({ message: 'Doctor not found' });
             }
             // Fetch the doctor's appointments
             const appointments = await Appointment.find({ d_id: doctor._id,diagnosed: false }).populate('p_id', 'Fname Lname').exec();
             // Fetch the list of all patients
-            const patients = await Patient.find({});
-            patients.forEach(patient => {
+            const patients = await doctor.patients.map(patient => {
                 patient.displayInfo = `Some custom information for ${patient.Fname} ${patient.Lname}`;
+                return patient;
             });
             // Fetch diagnosed patients using the Appointment model
             const diagnosedPatients = await Appointment.find({ d_id: doctor._id, diagnosed: true }).populate('p_id', 'Fname Lname').exec();
@@ -815,7 +817,10 @@ app.get('/doctors/patients/:patientId', async (req, res) => {
             return res.status(400).json({ message: 'Invalid patient ID' });
         }
         const patient = await Patient.findById(patientId)
-        .populate('medicalHistory')  // If needed, populate other fields as well
+        .populate({
+            path: 'medicalHistory',
+            populate: { path: 'd_id', model: 'Doctor' },
+        })
         .populate('medications')
         .populate('labResult');
         console.log(patient);

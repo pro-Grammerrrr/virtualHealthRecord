@@ -22,6 +22,15 @@
 <style>
   /* Custom CSS for the .appointment-form class */
   
+p{
+  font-family: 'Lato', sans-serif;
+ color:   #171810;
+}
+h1{
+  font-family: 'Montserrat', sans-serif;
+  color: #292F36;
+}
+
 .appointment-form {
     padding: 20px;
     background-color: #292F36;
@@ -57,63 +66,6 @@ display: inline-block;
 width: 1rem;
 height: 1rem;
 }
-  /*
-* Sidebar
-*/
-/* styles.css */
-/* Style the appointment cards */
-.card {
-            background-color: #4ECDC4;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            color: #292F36;
-        }
-
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-
-        .card-subtitle {
-            font-size: 1rem;
-            color: #555;
-        }
-
-        .card-text {
-            font-size: 0.9rem;
-        }
-
-        /* Add some spacing around and between cards */
-        .card {
-            margin: 10px;
-        }
-
-        /* Center the appointment cards on larger screens */
-        @media (min-width: 768px) {
-            .card-deck {
-                justify-content: center;
-            }
-        }
-
-        /* Display the cards inline */
-        .card-deck {
-            display: inline-flex;
-            flex-wrap: wrap;
-        }
-
-        @media (min-width: 768px) {
-            .sidebar .offcanvas-lg {
-                position: -webkit-sticky;
-                position: sticky;
-                top: 48px;
-            }
-
-            .navbar-search {
-                display: block;
-            }
-        }
-
         .nav-item {
             color: aliceblue !important;
         }
@@ -252,7 +204,7 @@ th{
   font-family: 'Montserrat', sans-serif;
 }    
 td{
-font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto Slab', serif
 
 }
 .appointments-table .confirmed {
@@ -278,8 +230,6 @@ font-family: 'Roboto', sans-serif;
   <link href="css/dashboard.css" rel="stylesheet">
 </head>
 <body>
-<header class="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow" data-bs-theme="dark">
-<a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white" href="#">Virtual Health Record</a>
 
 <ul class="navbar-nav flex-row d-md-none">
   <li class="nav-item text-nowrap">

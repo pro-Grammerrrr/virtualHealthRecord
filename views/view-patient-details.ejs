@@ -130,7 +130,7 @@
                 </tr>
                 <% patient.medicalHistory.forEach((history) => { %>
                     <tr class="section-content">
-                        <td><%= history.d_id[0].fName %></td>
+                          <td> DR.<%= history.d_id[0].fName %> <%= history.d_id[0].lName %></td>
                         <td><%= history.condition %></td>
                         <td><%= history.stage %></td>
                         <td><%= history.treatment %></td>

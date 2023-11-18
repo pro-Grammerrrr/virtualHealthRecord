@@ -1,16 +1,41 @@
 <div class="container mt-4">
     <h1 class="mb-3">Medications</h1>
+    <style>
+        .custom-table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .custom-table th,
+        .custom-table td {
+            border: none; /* Remove borders for table cells */
+            padding: 8px; /* Adjust the padding as needed */
+        }
+
+        .custom-table thead tr {
+            background-color: #007bff; /* Header background color */
+            color: #ffffff; /* Header text color */
+        }
+
+        .custom-table tbody tr {
+            background-color: #add8e6; /* Background color for table rows */
+        }
+
+        .custom-table tbody tr:hover {
+            background-color: #add8e6; /* Background color on hover */
+        }
+    </style>
     <div class="table-responsive">
-        <table class="table table-striped table-hover table-bordered caption-top">
-            <caption>List of Medications</caption>
-            <thead class="table-info"> <!-- Changed to table-info for a different color -->
+        <caption>List of Medications</caption>
+        <table class="table table-hover custom-table">
+            <thead class="table-info"> 
                 <tr>
-                    <th scope="col">#</th>
+                    <th scope="col"><i class="fa-solid fa-tablets fa-sm"></i></th>
                     <th scope="col">Medication Name</th>
                     <th scope="col">Prescription Date</th>
                     <th scope="col">Dosage Instructions</th>
                     <th scope="col">Frequency of Administration</th>
-                    <th scope="col ">Expiration Date</th>
+                    <th scope="col">Expiration Date</th>
                     <th scope="col">Medication Status</th>
                 </tr>
             </thead>
@@ -22,7 +47,7 @@
                         <td><%= (medication.prescriptionDate) %></td>
                         <td><%= medication.dosageInstructions %></td>
                         <td><%= medication.frequencyOfAdministration %></td>
-                        <td class="table-warning"><%= (medication.medicationExpirationDate) %></td> <!-- Changed to table-warning for a different color -->
+                        <td class="table-warning"><%= (medication.medicationExpirationDate) %></td>
                         <td><%= medication.medicationStatus %></td>
                     </tr>
                 <% }); %>

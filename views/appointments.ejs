@@ -1,4 +1,7 @@
 <style>
+    h2{
+        font-family: 'Montserrat', sans-serif;
+    }
     .appointments-table {
         width: 100%;
         border-collapse: collapse;
@@ -22,7 +25,7 @@
         cursor: pointer;
     }
 </style>
-<h2>Upcoming Appointments</h2>
+<h2 style="text-align: center; color: black;   font-weight: bold; background-color: ffc107;"  >Upcoming Appointments</h2>
 <table class="appointments-table">
     <thead>
         <tr>
@@ -49,14 +52,16 @@
                         <%= appointment.appointmentStatus %>
                     </span>
                 </td>
-                <td><a href="#" class="view-button" data-appointment-id="<%= appointment._id %>">View</a></td>
+                <td><a href="#" class="view-button" data-appointment-id="<%= appointment._id %>">      
+                          <i class="fa-solid fa-eye fa-sm"></i>
+                </a></td>
             </tr>
         <% }); %>
     </tbody>
 </table>
 <hr>
 <!-- Completed Appointments -->
-<h2 style="text-align: center;">Completed Appointments</h2>
+<h2 style="text-align: center; color: black;  font-weight: bold;background-color:#28a745;">Completed Appointments</h2>
 <table class="appointments-table">
     <thead>
         <tr>
@@ -77,17 +82,17 @@
                 </td>
                 <td><%= appointment.date %></td>
                 <td><%= appointment.diagnose_condition %></td>
-                <td><a href="#" class="view-button" data-appointment-id="<%= appointment._id %>">View</a></td>
+                <td><a href="#" class="view-button" data-appointment-id="<%= appointment._id %>">
+                    <i class="fa-solid fa-file-medical fa-sm"></i>
+                </a>
+            </td>
             </tr>
         <% }); %>
     </tbody>
 </table>
 
 <!-- Button to trigger the modal -->
-<button class="btn btn-primary btn-fixed-bottom-right" data-toggle="modal" data-target="#appointmentModal">Add Appointment</button>
-
-<!-- Modal for booking an appointment -->
-<!-- Modal for booking an appointment -->
+<button class="btn btn-primary btn-fixed-bottom-right" data-toggle="modal" data-target="#appointmentModal"><i class="fa-solid fa-plus fa-lg"></i></button>
 <div class="modal fade" id="appointmentModal" tabindex="-1" role="dialog" aria-labelledby="appointmentModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -96,10 +101,15 @@
                 <h5 class="mb-1">Make an Appointment</h5>
                 <form action="/appointment" method="post">
                     <div class="form-group">
-                        <label for="name">Doctor's Id:</label>
-                        <input type="text" id="name" name="d_id" class="form-control" required>
-                    </div>
-            
+                        <label for="doctorSelect">Select Doctor:</label>
+                        <select id="doctorSelect" name="d_id" class="form-select" required>
+                            <option value="" disabled selected>Select a Doctor</option>
+                            <% doctors.forEach(doctor => { %>
+                                <option value="<%= doctor._id %>"><%= doctor.fName %> <%= doctor.lName %></option>
+                            <% }); %>
+                        </select>
+                                                
+                              </div>
                     <div class="form-group">
                         <label for="email">Diagnose condition:</label>
                         <input type="text" id="email" name="diagnose_condition" class="form-control" >
