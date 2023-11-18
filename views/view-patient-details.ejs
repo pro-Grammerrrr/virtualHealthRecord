@@ -4,7 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body {
+.lineargrad{
+            background: linear-gradient(to right,#2ecc71, #3498db);
+            color: #ffffff;
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px; /* Add rounded corners */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add a subtle box shadow */
+            cursor: pointer;
+            transition: background 0.3s ease; /* Add a smooth transition effect */
+        }
+        .lineargrad:hover{
+            background: linear-gradient(to right,#3498db, #2ecc71);
+        }
+body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             margin: 20px;
@@ -190,10 +204,11 @@
         <% } else { %>
             <p>No lab results available.</p>
         <% } %>
-        <button id="goBackButton">Go Back</button>
-        <!-- Inside your patient details page -->
-        <a href="/medical-history-form?patientId=<%= patient.id%>">Check Patient</a>
-        
+        <div>
+            <button  style="margin-top: 15px;" class="lineargrad" id="goBackButton"><i class="fa-solid fa-backward fa-lg" style="color: #ffffff;"></i></button>
+            <!-- Inside your patient details page -->
+            <button style="float: right;margin-top: 15px;" class="lineargrad"><a style="color: white;" href="/medical-history-form?patientId=<%= patient.id%>"><i class="fa-solid fa-circle-check fa-lg" style="color: #ffffff;"></i></a></button>
+        </div>        
         <P style="text-align: center; font-family: 'Times New Roman', Times, serif;">This is a Virtual Health Report</P>
     </div>
     <!-- Include a button or link to go back to the list of patients or any other page as needed -->
@@ -203,6 +218,7 @@
     }
     </script>
 
+<script src="https://kit.fontawesome.com/0091da8801.js" crossorigin="anonymous"></script>
 
 </body>
 </html>
