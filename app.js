@@ -440,10 +440,10 @@ app.route('/doctors/:userId')
             const appointments = await Appointment.find({ d_id: doctor._id,diagnosed: false }).populate('p_id', 'Fname Lname').exec();
             // Fetch the list of all patients
             const patients = doctor.patients
-    .filter(patient => patient.diagnosed === 'false') // Filter out patients with diagnosed set to 'false'
-    .map(patient => {
-        patient.displayInfo = `Some custom information for ${patient.Fname} ${patient.Lname}`;
-        return patient;
+            .filter(patient => patient.diagnosed != 'false') // Filter out patients with diagnosed set to 'false'
+             .map(patient => {
+             patient.displayInfo = `Some custom information for ${patient.Fname} ${patient.Lname}`;
+            return patient;
     });        
             // Fetch diagnosed patients using the Appointment model
             const diagnosedPatients = await Appointment.find({ d_id: doctor._id, diagnosed: true }).populate('p_id', 'Fname Lname').exec();

@@ -17,7 +17,7 @@
                 <tr>
                     <th scope="row"><%= index + 1 %></th>
                     <td><%= entry.condition %></td>
-                    <td> Dr.<%= entry.d_id.fName %> <%= entry.d_id.lName %></td>
+                    <td> Dr.<%= entry.d_id[0].fName %> <%= entry.d_id[0].lName %></td>
                     <td><%= entry.stage %></td>
                     <td><%= entry.diagnosisDate %></td>
                     <td><%= entry.treatment %></td>
