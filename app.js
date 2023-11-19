@@ -36,16 +36,16 @@ app.get('/' , (req , res)=>{
     res.sendFile(__dirname + '/home.html')
 })
 app.get('/signUp.html', (req, res) => {
-    res.sendFile(__dirname + '/signUp.html'); // Use the filePath variable
+    res.sendFile(__dirname + '/signUp.html'); 
 });
 app.get('/registration', (req, res) => {
-    res.sendFile(__dirname + '/registration.html'); // Use the filePath variable
+    res.sendFile(__dirname + '/registration.html'); 
 });
 app.get('/docSignUp.html', (req, res) => {
-    res.sendFile(__dirname + '/docSignUp.html'); // Use the filePath variable
+    res.sendFile(__dirname + '/docSignUp.html'); 
 });
 app.get('/doctor_registration', (req, res) => {
-    res.sendFile(__dirname + '/doctor_registration.html'); // Use the filePath variable
+    res.sendFile(__dirname + '/doctor_registration.html'); 
 });
 //Registration Model
 const userSchema = new mongoose.Schema({
@@ -194,7 +194,6 @@ app.post('/registration', async (req, res) => {
     }
 });
 // Loggin UP the user 
-
 app.post('/login', (req, res, next) => {
     passport.authenticate('local', (err, user, info) => {
         if (err) {
@@ -433,7 +432,6 @@ app.route('/doctors/:userId')
     .get(async (req, res) => {
         try {
             const uid = req.params.userId;
-            
             const doctor = await Doctor.findById(uid.slice(1)).populate('patients');
             if (!doctor) {
                 return res.status(404).json({ message: 'Doctor not found' });
@@ -449,7 +447,6 @@ app.route('/doctors/:userId')
     });        
             // Fetch diagnosed patients using the Appointment model
             const diagnosedPatients = await Appointment.find({ d_id: doctor._id, diagnosed: true }).populate('p_id', 'Fname Lname').exec();
-            // Customize the displayInfo property for each diagnosed patient
             // Render the doctor's dashboard with appointments, all patients, and diagnosed patients
             res.render('doctors', {
                 doctor: doctor,
@@ -462,7 +459,6 @@ app.route('/doctors/:userId')
             res.status(500).json({ error: 'Internal server error' });
         }
     });
-////------------->Appointments Schema <------------
 const appointmentSchema = new mongoose.Schema({
     p_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Patient' }],
     d_id: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Doctor' }],
@@ -492,9 +488,9 @@ const Appointment = mongoose.model("Appointment", appointmentSchema);
 app.route("/appointment")
     .get(function (req, res) {
         Appointment.find({})
-            .populate('p_id') // Populate the 'p_id' field, assuming it references the 'Patient' model
-            .populate('d_id') // Populate the 'd_id' field, assuming it references the 'Doctor' model
-            .exec() // Execute the query
+            .populate('p_id') 
+            .populate('d_id') 
+           .exec()
             .then(foundAppointment => {
                 res.status(200).json(foundAppointment);
             })
@@ -566,8 +562,6 @@ app.route("/appointments/:appointmentId")
                 res.status(500).json({ error: "An error occurred" });
             });
     });
-
-//------------->Medical History <-------------
 const medicalHistorySchema = new mongoose.Schema({
     condition_id : Number, 
     p_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Patient' }],
@@ -580,7 +574,6 @@ const medicalHistorySchema = new mongoose.Schema({
     appointment :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }]
 });
 const MedicalHistory = mongoose.model("MedicalHistory" , medicalHistorySchema);
-//Route for All listing of medical HIstory
 app.route("/medicalHstory")
     .get( (req , res)=>{
         MedicalHistory.find({})
@@ -618,8 +611,6 @@ app.route("/medicalHstory")
                 res.status(500).json({ error: "Error deleting MedicalHistory" });
             });
     });
-///-------->Medications<--------------
-
 const medicationSchema = new mongoose.Schema({
     medicine_id : Number, 
     p_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Patient' }],
@@ -670,7 +661,6 @@ app.route("/medications")
                 res.status(500).json({ error: "Error deleting Medication" });
             });
     });
-    //------------------> LAB RESULTS <-------------
  const labResultsSchema = new mongoose.Schema({
     p_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Patient' }],
     d_id :  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Doctor' }],
